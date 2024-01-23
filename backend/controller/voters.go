@@ -21,7 +21,7 @@ func ListVoters(c *gin.Context) {
 	c.JSON(http.StatusOK, voters)
 }
 
-// GET /voting // นำไปใช้ในการแสดง จำนวนผู้ใช้สิทธ์
+//GET /voting // นำไปใช้ในการแสดง จำนวนผู้ใช้สิทธ์
 func ListVoting(c *gin.Context) {
 
 	db, err := entity.ConnectDB()
@@ -31,6 +31,6 @@ func ListVoting(c *gin.Context) {
 	}
 
 	var voting []entity.Voting
-	db.Find(&voting)
+	db.Preload("Voter").Preload("Candidat").Find(&voting)
 	c.JSON(http.StatusOK, voting)
 }
