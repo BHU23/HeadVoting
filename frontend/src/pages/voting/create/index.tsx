@@ -132,7 +132,9 @@ export default function CreateVoting() {
       </Card>
 
       <Card style={{ flex: '1', marginRight: '20px', wordWrap: 'break-word' }}>
-        <div style={{ marginBottom: '10px', textAlign:'center'}}> หลักฐานการเลือกตั้ง </div>        
+        <div style={{ marginBottom: '10px', textAlign:'center', color:'#D93E30'}}> 
+          หลักฐานการเลือกตั้ง
+        </div>        
         <TextArea 
           name="HashVote"
           value={dataVoting.length > 0 ? dataVoting[0].HashVote : ''}
