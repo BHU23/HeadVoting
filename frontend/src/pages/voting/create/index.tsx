@@ -9,6 +9,8 @@ import { VotersInterface } from "../../../interfaces/IVoter";
 import "./style.css";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import TextArea from "rc-textarea";
+import { Hash } from "crypto";
 
 const { Option } = Select;
 
@@ -77,7 +79,7 @@ export default function CreateVoting() {
   }, []);
   
   return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', minWidth:'800px'}}>
+    <div style={{ display: 'flex', justifyContent: 'space-between', minWidth:'1000px', maxWidth:'1000'}}>
       <ToastContainer
         position="top-right"
         autoClose={2000}
@@ -129,7 +131,16 @@ export default function CreateVoting() {
         </Form>
       </Card>
 
-      <Card style={{ flex: '1', display:'flex',justifyContent: 'center', alignItems: 'center' }}>
+      <Card style={{ flex: '1', marginRight: '20px', wordWrap: 'break-word' }}>
+        <div style={{ marginBottom: '10px', textAlign:'center'}}> หลักฐานการเลือกตั้ง </div>        
+        <TextArea 
+          name="HashVote"
+          value={dataVoting.length > 0 ? dataVoting[0].HashVote : ''}
+          autoSize={{ minRows: 12, maxRows: 12 }} 
+          style={{ width: '100%'}}/>
+      </Card>  
+
+      <Card style={{ flex: '1', display:'flex',justifyContent: 'center', alignItems: 'center'}}>
         <div className="titleVoting"> 
           ผู้มีสิทธิ์เลือกตั้ง
           <div className="valueBox1"> {dataVoters.length} </div>
@@ -147,7 +158,7 @@ export default function CreateVoting() {
             ผลการเลือกตั้ง
           </Link>
         </div>
-      </Card>       
+      </Card>      
     </div>
   );
 }
