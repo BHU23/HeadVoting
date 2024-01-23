@@ -1,7 +1,7 @@
 import React from "react";
 
 
-export default function CreateVoting() {
+export default function VotingResults() {
 //   const navigate = useNavigate();
 //   const [data, setData] = useState<interface[]>([]);
   

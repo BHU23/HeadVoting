@@ -83,7 +83,7 @@ func GetVoting(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": voting})
 }
 
-// GET /users
+// GET /Voting
 func ListVotings(c *gin.Context) {
 
 	db, err := entity.ConnectDB()
