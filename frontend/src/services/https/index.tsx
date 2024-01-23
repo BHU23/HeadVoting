@@ -24,6 +24,50 @@ async function GetVoting() {
   return res;
 }
 
+async function GetVotingList() {
+  const requestOptions = {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  };
+
+  let res = await fetch(`${apiUrl}/votinglist`, requestOptions)
+    .then((response) => response.json())
+    .then((res) => {
+      console.log(res);
+      if (res) {
+        return res;
+      } else {
+        return false;
+      }
+    });
+
+  return res;
+}
+
+async function GetVoters() {
+  const requestOptions = {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  };
+
+  let res = await fetch(`${apiUrl}/voters`, requestOptions)
+    .then((response) => response.json())
+    .then((res) => {
+      console.log(res);
+      if (res) {
+        return res;
+      } else {
+        return false;
+      }
+    });
+
+  return res;
+}
+
 
 async function DeleteVotingByID(id: Number | undefined) {
   const requestOptions = {
@@ -123,8 +167,10 @@ async function GetCandidats() {
 export {
   GetVotingrById,
   GetVoting,
+  GetVotingList,
   CreateVotings,
   DeleteVotingByID,
   UpdateVoting,
   GetCandidats,
+  GetVoters,
 };

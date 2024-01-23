@@ -19,8 +19,13 @@ func main() {
 
 	// Candidats
 	r.GET("/candidats", controller.ListCandidat)
+	
 	// }
 	// Run the server
+	r.GET("/voters", controller.ListVoters)
+	r.GET("/votinglist", controller.ListVoting)
+
+
 	r.Run()
 }
 

@@ -6,6 +6,7 @@ import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import { Breadcrumb, Layout, Menu, theme } from "antd";
 
 import CreateVoting from "./pages/voting/create";
+import VotingResults from "./pages/voting/VotingResults";
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -76,11 +77,15 @@ const App: React.FC = () => {
                 minHeight: "100%",
                 background: colorBgContainer,
                 borderRadius: "20px",
-                width: "50vh",
+                width: "auto",
               }}
             >
               <Routes>
                 <Route path="/" element={<CreateVoting />} />
+              </Routes>
+
+              <Routes>
+                <Route path="/VotingResults" element={<VotingResults />} />
               </Routes>
             </div>
           </Content>
@@ -88,7 +93,7 @@ const App: React.FC = () => {
             style={{ textAlign: "center", backgroundColor: colorBgContainer }}
           >
             CYBER SECURITY FUNDAMENTALS 2/66
-            <br />@ By Bhuwadol Sriton and Narubase JitChouy
+            <br />@ By Bhuwadol Sriton and Naruebeth Chitchuai
           </Footer>
         </Layout>
       </Layout>
