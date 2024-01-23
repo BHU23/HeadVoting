@@ -12,6 +12,7 @@ export default function CreateVoting() {
   const navigate = useNavigate();
   const [messageApi, contextHolder] = message.useMessage();
   const [candidats, setCandidats] = useState<CandidatsInterface[]>([]);
+
   const onFinish = async (values: VotingsInterface) => {
     console.log(values);
     let res = await CreateVotings(values);
@@ -37,6 +38,7 @@ export default function CreateVoting() {
     }
   };
 
+
   useEffect(() => {
     getCandidats();
   }, []);
@@ -44,14 +46,14 @@ export default function CreateVoting() {
   return (
     <Form name="CreateVoting" layout="vertical" onFinish={onFinish}>
       <Form.Item
-        name="StudentID"
+        name="StudenID"
         label="StudentID"
         rules={[{ required: true, message: "กรุณากรอก StudentID !" }]}
       >
         <Input />
       </Form.Item>
       <Form.Item
-        name="CandidateID"
+        name="CandidatID"
         label="Vote Candidate"
         rules={[{ required: true, message: "กรุณาระบุกรรมการห้องเรียน !" }]}
       >

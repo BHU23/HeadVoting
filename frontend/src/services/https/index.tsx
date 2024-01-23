@@ -24,6 +24,7 @@ async function GetVoting() {
   return res;
 }
 
+
 async function DeleteVotingByID(id: Number | undefined) {
   const requestOptions = {
     method: "DELETE",

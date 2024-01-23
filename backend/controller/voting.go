@@ -10,6 +10,8 @@ import (
 // POST /voting
 func CreateVoting(c *gin.Context) {
 	var voting entity.Voting
+	var candidat entity.Candidat
+	var voter entity.Voter
 
 	// bind เข้าตัวแปร voting
 	if err := c.ShouldBindJSON(&voting); err != nil {
@@ -29,7 +31,6 @@ func CreateVoting(c *gin.Context) {
 	}
 
 	// ค้นหา candidat ด้วย id
-	var candidat entity.Candidat
 	db.First(&candidat, voting.CandidatID)
 	if candidat.ID == 0 {
 		c.JSON(http.StatusNotFound, gin.H{"error": "candidat not found"})
@@ -37,20 +38,21 @@ func CreateVoting(c *gin.Context) {
 	}
 
 	// ค้นหา voter ด้วย id
-	var voter entity.Voter
+
 	if tx := entity.DB().Where("student_id = ?", voting.StudenID).First(&voter); tx.RowsAffected == 0 {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "voter not found"})
 		return
 	}
 
+
 	// สร้าง Voting
 	u := entity.Voting{
 		StudenID: voting.StudenID,
-		HashVote: voting.HashVote,
+		// HashVote: voting.HashVote,
 		Signeture: voting.Signeture, 
-		VoterID: voting.VoterID,
+		VoterID: voter.ID,
 		Voter: voter,
-		CandidatID: voting.CandidatID,
+		CandidatID: candidat.ID,
 		Candidat: candidat,
 	}
 

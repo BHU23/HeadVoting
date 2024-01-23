@@ -25,8 +25,8 @@ type Voting struct {
 	StudenID   string
 	HashVote   string
 	Signeture  string
-	VoterID    uint
-	Voter      Voter `gorm:"references:id"`
+	VoterID    uint   	`gorm:"uniqueIndex"` // ไม่ให้มีการโหวดซ้ำ
+	Voter      Voter 	`gorm:"references:id"`
 	CandidatID uint
 	Candidat   Candidat `gorm:"references:id"`
 }

@@ -13,7 +13,7 @@ func main() {
 	// Voting Routes
 	r.GET("/voting", controller.ListCandidat)
 	r.GET("/voting/:id", controller.GetVoting)
-	r.POST("/voting", controller.CreateVoting)
+	r.POST("/votings", controller.CreateVoting)
 	r.PATCH("/voting", controller.UpdateVoting)
 	r.DELETE("/voting/:id", controller.DeleteUser)
 
