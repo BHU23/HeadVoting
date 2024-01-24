@@ -1,4 +1,4 @@
 export interface CandidatsInterface {
-  ID: number;
+  ID?: number;
   NameCandidat: string;
 }
