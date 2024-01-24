@@ -3,19 +3,23 @@ import { Form, Input, Button, Card } from "antd";
 import { Select } from "antd";
 import { VotingsInterface } from "../../../interfaces/IVoting";
 import { Link } from "react-router-dom";
-import { CreateVotings, GetCandidats, GetVoters, GetVotingList } from "../../../services/https";
+import {
+  CreateVotings,
+  GetCandidats,
+  GetVoters,
+  GetVotingList,
+} from "../../../services/https";
 import { CandidatsInterface } from "../../../interfaces/ICandidat";
 import { VotersInterface } from "../../../interfaces/IVoter";
 import "./style.css";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import TextArea from "rc-textarea";
-import { Hash } from "crypto";
-
+import CryptoJS from "crypto-js";
 const { Option } = Select;
+// import * as CryptoJS from "crypto-js";
 
 export default function CreateVoting() {
-
   const [form] = Form.useForm();
   //const [messageApi] = message.useMessage();
   const [candidats, setCandidats] = useState<CandidatsInterface[]>([]);
@@ -24,20 +28,22 @@ export default function CreateVoting() {
 
   const onFinish = async (values: VotingsInterface) => {
     console.log(values);
+
+    let generated_signature = CryptoJS.SHA256(
+      values.StudenID + "|" + values.Candidat?.NameCandidat,
+    ).toString(CryptoJS.enc.Hex);
+    values.HashVote = generated_signature;
     let res = await CreateVotings(values);
-    
+
     if (res.status) {
       toast.success("บันทึกข้อมูลสำเร็จ");
-      getVoters();
-      getVoting();
 
-      setTimeout(function () {
-      }, 2000);
+      setTimeout(function () {}, 2000);
 
       form.setFieldsValue({
-        'StudenID': undefined,
-        'CandidatID': undefined,
-        'Signature': undefined,
+        StudenID: undefined,
+        CandidatID: undefined,
+        Signature: undefined,
       });
     } else {
       toast.error("บันทึกข้อมูลไม่สำเร็จ " + res.message);
@@ -63,13 +69,12 @@ export default function CreateVoting() {
     }
   };
 
-
   useEffect(() => {
     getCandidats();
     getVoters();
     getVoting();
   }, []);
-  
+
   return (
     <div
       style={{
@@ -77,7 +82,7 @@ export default function CreateVoting() {
         gap: 25,
         minWidth: "500px",
         maxWidth: "500px",
-        padding:"0 25px 25px 25px"
+        padding: "0 25px 25px 25px",
       }}
     >
       <ToastContainer
@@ -129,7 +134,11 @@ export default function CreateVoting() {
           <Button
             type="primary"
             htmlType="submit"
-            style={{ width: "100%", backgroundColor: "#F2B263" ,height:'50px'}}
+            style={{
+              width: "100%",
+              backgroundColor: "#F2B263",
+              height: "50px",
+            }}
           >
             ลงคะแนน
           </Button>

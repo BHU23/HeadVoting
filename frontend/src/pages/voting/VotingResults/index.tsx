@@ -122,7 +122,7 @@ export default function VotingResults() {
           <Table
             columns={columns}
             dataSource={dataVoting}
-            pagination={{ pageSize: 4 }}
+            pagination={{ pageSize: 10 }}
             size="small"
           />
         </Card>

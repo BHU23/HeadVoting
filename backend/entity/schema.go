@@ -23,8 +23,8 @@ type Candidat struct {
 type Voting struct {
 	gorm.Model
 	StudenID   string
-	HashVote   string
-	Signeture  string
+	HashVote   string   `gorm:"type:longtext"`
+	Signeture  string   `gorm:"type:longtext"`
 	VoterID    uint   	`gorm:"uniqueIndex"` // ไม่ให้มีการโหวดซ้ำ
 	Voter      Voter 	`gorm:"references:id"`
 	CandidatID uint

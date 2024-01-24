@@ -9,6 +9,6 @@ export interface VotingsInterface {
     Voter?: VotersInterface;
     StudenID?:string;
     CandidatID?: number;
-    NameCandidat?: CandidatsInterface;
+    Candidat?: CandidatsInterface;
 }
   
