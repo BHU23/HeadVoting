@@ -1,4 +1,3 @@
-import { CandidatsInterface } from "./ICandidat";
 import { VotersInterface } from "./IVoter";
 
 export interface VotingsInterface {
@@ -8,7 +7,6 @@ export interface VotingsInterface {
     VoterID?: number;
     Voter?: VotersInterface;
     StudenID?:string;
-    CandidatID?: number;
-    NameCandidat?: CandidatsInterface;
+    CandidatID: number;
 }
   
