@@ -64,7 +64,7 @@ const App: React.FC = () => {
           </Header>
           <Content
             style={{
-              margin: "0 16px",
+              margin: "20px",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -73,7 +73,6 @@ const App: React.FC = () => {
             <Breadcrumb style={{ margin: "16px 0" }} />
             <div
               style={{
-                padding: 24,
                 minHeight: "100%",
                 background: colorBgContainer,
                 borderRadius: "20px",

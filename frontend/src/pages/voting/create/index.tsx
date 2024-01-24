@@ -27,10 +27,6 @@ export default function CreateVoting() {
     let res = await CreateVotings(values);
     
     if (res.status) {
-      // messageApi.open({
-      //   type: "success",
-      //   content: "บันทึกข้อมูลสำเร็จ",
-      // });
       toast.success("บันทึกข้อมูลสำเร็จ");
       getVoters();
       getVoting();
@@ -44,10 +40,6 @@ export default function CreateVoting() {
         'Signature': undefined,
       });
     } else {
-      // messageApi.open({
-      //   type: "error",
-      //   content: "บันทึกข้อมูลไม่สำเร็จ",
-      // });
       toast.error("บันทึกข้อมูลไม่สำเร็จ " + res.message);
     }
   };
@@ -79,7 +71,15 @@ export default function CreateVoting() {
   }, []);
   
   return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', minWidth:'1000px', maxWidth:'1000'}}>
+    <div
+      style={{
+        display: "grid",
+        gap: 25,
+        minWidth: "500px",
+        maxWidth: "500px",
+        padding:"0 25px 25px 25px"
+      }}
+    >
       <ToastContainer
         position="top-right"
         autoClose={2000}
@@ -92,8 +92,13 @@ export default function CreateVoting() {
         pauseOnHover
         theme="light"
       />
-      <Card style={{ flex: '1', marginRight: '20px'}}>
-        <Form name="CreateVoting" layout="vertical" onFinish={onFinish} form={form}>
+      <Card style={{ flex: "1" }}>
+        <Form
+          name="CreateVoting"
+          layout="vertical"
+          onFinish={onFinish}
+          form={form}
+        >
           <Form.Item
             name="StudenID"
             label="StudentID"
@@ -124,43 +129,57 @@ export default function CreateVoting() {
           <Button
             type="primary"
             htmlType="submit"
-            style={{ width: "100%", backgroundColor: "#F2B263" }}
+            style={{ width: "100%", backgroundColor: "#F2B263" ,height:'50px'}}
           >
             ลงคะแนน
           </Button>
         </Form>
       </Card>
 
-      <Card style={{ flex: '1', marginRight: '20px', wordWrap: 'break-word' }}>
-        <div style={{ marginBottom: '10px', textAlign:'center', color:'#D93E30'}}> 
+      <Card style={{ flex: "1", wordWrap: "break-word" }}>
+        <div
+          style={{
+            // marginBottom: "10px",
+            textAlign: "center",
+            color: "#D93E30",
+          }}
+        >
           หลักฐานการเลือกตั้ง
-        </div>        
-        <TextArea 
+        </div>
+        <TextArea
           name="HashVote"
-          value={dataVoting.length > 0 ? dataVoting[0].HashVote : ''}
-          autoSize={{ minRows: 12, maxRows: 12 }} 
-          style={{ width: '100%'}}/>
-      </Card>  
+          value={dataVoting.length > 0 ? dataVoting[0].HashVote : ""}
+          autoSize={{ minRows: 12, maxRows: 12 }}
+          style={{ width: "100%" }}
+        />
+      </Card>
 
-      <Card style={{ flex: '1', display:'flex',justifyContent: 'center', alignItems: 'center'}}>
-        <div className="titleVoting"> 
+      <Card
+        style={{
+          flex: "1",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <div className="titleVoting">
           ผู้มีสิทธิ์เลือกตั้ง
           <div className="valueBox1"> {dataVoters.length} </div>
-          <div style={{ display: 'inline-block', fontSize:'14px'}}> ราย </div>
+          <div style={{ display: "inline-block", fontSize: "14px" }}> ราย </div>
         </div>
 
-        <div className="titleVoting"> 
+        <div className="titleVoting">
           ใช้สิทธิ์เลือกตั้งแล้ว
           <div className="valueBox2"> {dataVoting.length} </div>
-          <div style={{ display: 'inline-block', fontSize:'14px'}}> ราย </div>
+          <div style={{ display: "inline-block", fontSize: "14px" }}> ราย </div>
         </div>
 
-        <div >
+        <div>
           <Link to={"/VotingResults"} className="VotingResultsButton">
             ผลการเลือกตั้ง
           </Link>
         </div>
-      </Card>      
+      </Card>
     </div>
   );
 }
