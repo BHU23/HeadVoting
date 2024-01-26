@@ -136,34 +136,35 @@ const filteredData = dataVoting.filter((voting) => {
           }}
         >
           <div className="titleConclusion"> สรุปผลการเลือกตั้งหัวหน้าทีม 
-          <Card className="cardOrder" style={{ height: "100%", width: "100%" }}>
-            <div className="gridContainer">
-              <div>
-                อันดับ
-                <div className="NoOfCandidate"> 1 </div>
-                <div className="NoOfCandidate"> 2 </div>
-                <div className="NoOfCandidate"> 3 </div>
-              </div>
-              <div>
-                ผู้สมัครเลือกตั้ง
-                <div className="CandidateName">
-                  {sortedLengths.map((currentLength, i) => (
-                    <div key={i} className="CandidateName">
-                      {currentLength === length1 && getCandidateName(dataVotingRusults1[0]?.CandidatID)}
-                      {currentLength === length2 && getCandidateName(dataVotingRusults2[0]?.CandidatID)}
-                      {currentLength === length3 && getCandidateName(dataVotingRusults3[0]?.CandidatID)}
-                    </div>
-                  ))}
+            <Card className="cardOrder" style={{ height: "100%", width: "100%" }}>
+              <div className="gridContainer">
+                <div>
+                  อันดับ
+                  <div className="NoOfCandidate"> 1 </div>
+                  <div className="NoOfCandidate"> 2 </div>
+                  <div className="NoOfCandidate"> 3 </div>
+                </div>
+                <div>
+                  ผู้สมัครเลือกตั้ง
+                  <div className="CandidateName">
+                    {sortedLengths.map((currentLength, i) => (
+                      <div key={i} className="CandidateName">
+                        {currentLength === length1 && getCandidateName(dataVotingRusults1[0]?.CandidatID)}
+                        {currentLength === length2 && getCandidateName(dataVotingRusults2[0]?.CandidatID)}
+                        {currentLength === length3 && getCandidateName(dataVotingRusults3[0]?.CandidatID)}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  คะแนนรวม
+                  <div className="VotingScore"> {maxCount} </div>
+                  <div className="VotingScore"> {midCount} </div>
+                  <div className="VotingScore"> {minCount} </div>
                 </div>
               </div>
-              <div>
-                คะแนนรวม
-                <div className="VotingScore"> {maxCount} </div>
-                <div className="VotingScore"> {midCount} </div>
-                <div className="VotingScore"> {minCount} </div>
-              </div>
-            </div>
-          </Card></div>
+            </Card>
+          </div>
           <div style={{ height: "20%" ,float:"left" }}>
             <Link
               to={"/"}
