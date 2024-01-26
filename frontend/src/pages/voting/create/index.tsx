@@ -232,7 +232,7 @@ export default function CreateVoting() {
         </div>
         <TextArea
           name="HashVote"
-          value={dataVoting.length > 0 ? dataVoting[0].HashVote : ""}
+          value={dataVoting.length > 0 ? dataVoting[dataVoting.length - 1].HashVote : ""}
           autoSize={{ minRows: 12, maxRows: 12 }}
           style={{ width: "100%" }}
         />
