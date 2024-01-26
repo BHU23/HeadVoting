@@ -3,13 +3,14 @@ import React, { useEffect, useState } from "react";
 import { VotingsInterface } from "../../../interfaces/IVoting";
 import type { ColumnsType } from "antd/es/table";
 import { 
+  GetCandidats,
   GetVotingByCandidateID_is_1, 
   GetVotingByCandidateID_is_2, 
   GetVotingByCandidateID_is_3, 
-  GetVotingList, 
-  GetVotingrById} from "../../../services/https";
+  GetVotingList,} from "../../../services/https";
 import { Link } from "react-router-dom";
 import { ArrowLeftOutlined } from "@ant-design/icons";
+import { CandidatsInterface } from "../../../interfaces/ICandidat";
 
 export default function VotingResults() {
   const [dataVoting, setDataVoting] = useState<VotingsInterface[]>([]);
@@ -56,19 +57,21 @@ const filteredData = dataVoting.filter((voting) => {
       setDataVoting(res);
     }
   };
-  const getVotingById = async () => {
-    let res = await GetVotingrById(Number());
+
+  const getCandidate = async () => {
+    let res = await GetCandidats();
     if (res) {
-      setDataVoting(res);
+      setDataCandidateName(res);
     }
   };
+
 
   useEffect(() => {
     getVoting();
     getVotingResults1();
     getVotingResults2();
     getVotingResults3();
-    getVotingById();
+    getCandidate();
   }, []);
 
   const columns: ColumnsType<VotingsInterface> = [
@@ -95,13 +98,13 @@ const filteredData = dataVoting.filter((voting) => {
       render: (item) => Object.values(item.NameCandidat),
     },
   ];
- 
-  const test = (id: number) => {
-    const candidate: VotingsInterface | undefined = dataVoting.find((unit: VotingsInterface) => unit.ID === id);
-    return candidate ? candidate.CandidatID : 'Unknown';
-  };
-  
 
+
+  const getCandidateName = (id: number) => {
+    const CandidateName: CandidatsInterface | undefined = dataCandidateName.find((unit: CandidatsInterface) => unit.ID === id);
+    return CandidateName ? CandidateName.NameCandidat : 'Unknown';
+  };
+  const [dataCandidateName, setDataCandidateName] = useState<CandidatsInterface[]>([]);
 
   return (
     <div
@@ -146,9 +149,9 @@ const filteredData = dataVoting.filter((voting) => {
                 <div className="CandidateName">
                   {sortedLengths.map((currentLength, i) => (
                     <div key={i} className="CandidateName">
-                      {currentLength === length1 && test(dataVoting[0]?.CandidatID)}
-                      {currentLength === length2 && test(dataVoting[1]?.CandidatID)}
-                      {currentLength === length3 && test(dataVoting[2]?.CandidatID)}
+                      {currentLength === length1 && getCandidateName(dataVotingRusults1[0]?.CandidatID)}
+                      {currentLength === length2 && getCandidateName(dataVotingRusults2[0]?.CandidatID)}
+                      {currentLength === length3 && getCandidateName(dataVotingRusults3[0]?.CandidatID)}
                     </div>
                   ))}
                 </div>
