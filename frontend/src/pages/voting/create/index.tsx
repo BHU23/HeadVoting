@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { Form, Input, Button, Card } from "antd";
+import { Form, Input, Button, Card, Popconfirm } from "antd";
 import { Select } from "antd";
 import { VotingsInterface } from "../../../interfaces/IVoting";
-import { Link } from "react-router-dom";
+import {  useNavigate } from "react-router-dom";
 import {
   CreateVotings,
   GetCandidats,
@@ -21,7 +21,7 @@ const { Option } = Select;
 
 export default function CreateVoting() {
   const [form] = Form.useForm();
-  //const [messageApi] = message.useMessage();
+  const navigate = useNavigate();
   const [candidats, setCandidats] = useState<CandidatsInterface[]>([]);
   const [dataVoters, setDataVoters] = useState<VotersInterface[]>([]);
   const [dataVoting, setDataVoting] = useState<VotingsInterface[]>([]);
@@ -74,6 +74,20 @@ export default function CreateVoting() {
     getVoters();
     getVoting();
   }, []);
+
+  const [showPopconfirm, setShowPopconfirm] = useState(false);
+
+  const handleButtonClick = () => {
+    if (dataVoting.length === 10) {
+      navigate(`/VotingResults`)
+    } else {
+      setShowPopconfirm(true);
+    }
+  };
+
+  const handlePopconfirmCancel = () => {
+    setShowPopconfirm(false);
+  };
 
   return (
     <div
@@ -184,10 +198,36 @@ export default function CreateVoting() {
         </div>
 
         <div>
-          <Link to={"/VotingResults"} className="VotingResultsButton">
+          <Button 
+            style={{
+              background:'#21A6A6', 
+              color:'#ffff', 
+              fontWeight:'500',
+              fontSize:'14px',
+              padding:'10px 20px',
+              textAlign:'center',
+              justifyContent:'center',
+              height:'auto',
+              alignItems:'center',
+              width:'100%'
+              }}
+              className="VotingResultsButton"
+            onClick={handleButtonClick}
+          >
             ผลการเลือกตั้ง
-          </Link>
+          </Button>
+
+          <Popconfirm
+            title="Error to Voting Results"
+            description="Please check that everyone has voted?"
+            visible={showPopconfirm}
+            onCancel={handlePopconfirmCancel}
+            okButtonProps={{ style: { display: 'none' } }}
+            cancelButtonProps={{ style: { display: '' } }}
+          >
+          </Popconfirm>
         </div>
+        
       </Card>
     </div>
   );
