@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { Form, Input, Button, Card, Popconfirm } from "antd";
+import { Form, Input, Button, Card } from "antd";
 import { Select } from "antd";
 import { VotingsInterface } from "../../../interfaces/IVoting";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
   CreateVotings,
   GetCandidats,
@@ -26,19 +26,6 @@ export default function CreateVoting() {
   const [dataVoters, setDataVoters] = useState<VotersInterface[]>([]);
   const [dataVoting, setDataVoting] = useState<VotingsInterface[]>([]);
   const navigate = useNavigate();
-  const [showPopconfirm, setShowPopconfirm] = useState(false);
-
-  const handleButtonClick = () => {
-    if (dataVoting.length === 10) {
-      navigate(`/VotingResults`)
-    } else {
-      setShowPopconfirm(true);
-    }
-  };
-
-  const handlePopconfirmCancel = () => {
-    setShowPopconfirm(false);
-  };
   
   const onFinish = async (values: VotingsInterface) => {
     values.HashAuthen = hashSHA256(values.CandidatID, values.StudenID);
@@ -148,7 +135,7 @@ export default function CreateVoting() {
     cadidateID: number | undefined,
     sudantID: string | undefined
   ) => {
-    const candidat = candidats.filter((c) => c.ID == cadidateID);
+    const candidat = candidats.filter((c) => c.ID === cadidateID);
 
     let generated_signature = CryptoJS.SHA256(
       sudantID + candidat[0].NameCandidat
@@ -156,6 +143,37 @@ export default function CreateVoting() {
 
     return generated_signature;
   };
+
+  async function generateKeysForVoters() {
+    const voters = [
+      { StudentID: 'B6400001', StudentName: 's1', PublishKey: '', PrivateKey: '' },
+      { StudentID: 'B6400002', StudentName: 's2', PublishKey: '', PrivateKey: '' },
+      { StudentID: 'B6400003', StudentName: 's3', PublishKey: '', PrivateKey: '' },
+      { StudentID: 'B6400004', StudentName: 's4', PublishKey: '', PrivateKey: '' },
+      { StudentID: 'B6400005', StudentName: 's5', PublishKey: '', PrivateKey: '' },
+      { StudentID: 'B6400006', StudentName: 's6', PublishKey: '', PrivateKey: '' },
+      { StudentID: 'B6400007', StudentName: 's7', PublishKey: '', PrivateKey: '' },
+      { StudentID: 'B6400008', StudentName: 's8', PublishKey: '', PrivateKey: '' },
+      { StudentID: 'B6400009', StudentName: 's9', PublishKey: '', PrivateKey: '' },
+      { StudentID: 'B6400010', StudentName: 's10', PublishKey: '', PrivateKey: '' },
+    ];
+  
+    const updatedVoters = [];
+  
+    for (const voter of voters) {
+      const encrypt = new JSEncrypt();
+  
+      // Generate key pair
+      const privateKey = encrypt.getPrivateKey();
+      const publicKey = encrypt.getPublicKey();
+  
+      voter.PrivateKey = privateKey;
+      voter.PublishKey = publicKey;
+      updatedVoters.push(voter);
+    }
+  
+    console.log(updatedVoters);
+  }
 
   return (
     <div
@@ -229,19 +247,28 @@ export default function CreateVoting() {
 
       <Card style={{ flex: "1", wordWrap: "break-word" }}>
         <div
-          style={{
-            // marginBottom: "10px",
+          style={{           
             textAlign: "center",
             color: "#D93E30",
           }}
         >
-          หลักฐานการเลือกตั้ง
+          หลักฐานการเลือกตั้ง 
+        </div>
+        <div style={{marginTop:'20px'}}>
+          No.
+          <span>
+            {dataVoting.length} 
+          </span> 
+
+          <span style={{marginLeft:'10px', float:'right'}}> 
+              [ ค่า Hash ของแถวที่ 1 -  <span> {dataVoting.length} </span>] 
+          </span>
         </div>
         <TextArea
           name="HashVote"
           value={dataVoting.length > 0 ? dataVoting[dataVoting.length - 1].HashVote : ""}
           autoSize={{ minRows: 12, maxRows: 12 }}
-          style={{ width: "100%" }}
+          style={{ width: "100%" ,marginTop:'15px'}}
         />
       </Card>
 
@@ -279,21 +306,12 @@ export default function CreateVoting() {
               alignItems:'center',
               width:'100%'
               }}
+              type="link"
               className="VotingResultsButton"
-            onClick={handleButtonClick}
+              onClick={() => navigate(`/VotingResults`)}
           >
             ผลการเลือกตั้ง
           </Button>
-
-          <Popconfirm
-            title="Error to Voting Results"
-            description="Please check that everyone has voted?"
-            visible={showPopconfirm}
-            onCancel={handlePopconfirmCancel}
-            okButtonProps={{ style: { display: 'none' } }}
-            cancelButtonProps={{ style: { display: '' } }}
-          >
-          </Popconfirm>
         </div>
       </Card>
     </div>
