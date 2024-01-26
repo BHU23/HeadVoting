@@ -11,7 +11,8 @@
 # production
 /build
 
-../backend/cs-66.db
+/backend/cs-66.db
+
 # misc
 .DS_Store
 .env.local

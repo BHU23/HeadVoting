@@ -1,10 +1,15 @@
 package controller
 
 import (
+	// "fmt"
 	"net/http"
+	// "crypto/rand"
+	// "crypto/rsa"
+	// "crypto/sha256"
+	// "encoding/base64"
 
-	"github.com/gin-gonic/gin"
 	"github.com/BHU23/HeadVoting/entity"
+	"github.com/gin-gonic/gin"
 )
 type votingPayload struct {
     HashVote string
@@ -50,11 +55,17 @@ func CreateVoting(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "voter not found"})
 		return
 	}
+	// // Concatenate the required values for hashing
+	// hashData := voting.StudenID + string(candidat.NameCandidat)
 
+	// // Hash the concatenated data using SHA-256
+	// hashedData := sha256.Sum256([]byte(hashData))
+	// hashString := fmt.Sprintf("%x", hashedData)
 
 	// สร้าง Voting
 	u := entity.Voting{
-		StudenID: data.StudenID,
+		StudenID: voting.StudenID,
+		// HashVote: string(hashString),
 		HashVote: data.HashVote,
 		Signeture: data.Signeture, 
 		VoterID: voter.ID,
