@@ -164,6 +164,62 @@ async function GetCandidats() {
 
   return res;
 }
+
+
+async function GetVotingByCandidateID_is_1() {
+  const requestOptions = {
+    method: "GET",
+  };
+
+  let res = await fetch(`${apiUrl}/votinglist1`, requestOptions)
+    .then((response) => response.json())
+    .then((res) => {
+      if (res.data) {
+        return res.data;
+      } else {
+        return false;
+      }
+    });
+
+  return res;
+}
+
+async function GetVotingByCandidateID_is_2() {
+  const requestOptions = {
+    method: "GET",
+  };
+
+  let res = await fetch(`${apiUrl}/votinglist2`, requestOptions)
+    .then((response) => response.json())
+    .then((res) => {
+      if (res.data) {
+        return res.data;
+      } else {
+        return false;
+      }
+    });
+
+  return res;
+}
+
+async function GetVotingByCandidateID_is_3() {
+  const requestOptions = {
+    method: "GET",
+  };
+
+  let res = await fetch(`${apiUrl}/votinglist3`, requestOptions)
+    .then((response) => response.json())
+    .then((res) => {
+      if (res.data) {
+        return res.data;
+      } else {
+        return false;
+      }
+    });
+
+  return res;
+}
+
 export {
   GetVotingrById,
   GetVoting,
@@ -173,4 +229,7 @@ export {
   UpdateVoting,
   GetCandidats,
   GetVoters,
+  GetVotingByCandidateID_is_1,
+  GetVotingByCandidateID_is_2,
+  GetVotingByCandidateID_is_3,
 };

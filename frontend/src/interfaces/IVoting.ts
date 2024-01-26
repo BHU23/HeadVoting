@@ -8,7 +8,8 @@ export interface VotingsInterface {
     VoterID?: number;
     Voter?: VotersInterface;
     StudenID?:string;
-    CandidatID?: number;
-    Candidat?: CandidatsInterface;
+    CandidatID: number;
+    Candidat: CandidatsInterface;
+    HashAuthen?: string;
 }
   

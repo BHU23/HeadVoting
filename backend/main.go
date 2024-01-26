@@ -25,6 +25,10 @@ func main() {
 	r.GET("/voters", controller.ListVoters)
 	r.GET("/votinglist", controller.ListVoting)
 
+	r.GET("/votinglist1", controller.GetVotingByCandidateID_is_1)
+	r.GET("/votinglist2", controller.GetVotingByCandidateID_is_2)
+	r.GET("/votinglist3", controller.GetVotingByCandidateID_is_3)
+
 
 	r.Run()
 }

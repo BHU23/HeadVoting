@@ -12,6 +12,7 @@
 /build
 
 /backend/cs-66.db
+
 # misc
 .DS_Store
 .env.local
