@@ -27,7 +27,11 @@ export default function VotingResults() {
   const midCount = length1 + length2 + length3 - maxCount - minCount;
   const sortedLengths = [length1, length2, length3].sort((a, b) => b - a);
   
-
+const filteredData = dataVoting.filter((voting) => {
+  return [1, 2, 3].includes(voting.CandidatID);
+});
+  
+  
  const getVotingResults1 = async () => {
         let res = await GetVotingByCandidateID_is_1();
         if (res) {
