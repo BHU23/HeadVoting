@@ -29,9 +29,16 @@ export default function CreateVoting() {
   const onFinish = async (values: VotingsInterface) => {
     values.HashAuthen = hashSHA256(values.CandidatID, values.StudenID);
     const signeture = encryption(values.PrivateKey, values.HashAuthen);
-    values.Signeture = signeture ? signeture : "";
+    if (signeture) {
+      const signetureBase64 = btoa(signeture);
+      values.Signeture = signetureBase64;
+    } else {
+      console.error("Encryption failed");
+    }
     values.HashVote = values.HashAuthen;
-    
+
+    console.log("values.Signeture");
+    console.log(values.Signeture);
     let res = await CreateVotings(values);
     if (res.status) {
       toast.success("บันทึกข้อมูลสำเร็จ");
@@ -104,13 +111,13 @@ export default function CreateVoting() {
     -----END RSA PRIVATE KEY-----`;
 
     // Assign our encryptor to utilize the public key.
-    encrypt.setPublicKey(privateKey);
+    encrypt.setPublicKey(publicKey);
 
     // Perform our encryption based on our public key - only private key can read it!
     var encrypted = encrypt.encrypt(hashAuthen);
 
     var decrypt = new JSEncrypt();
-    decrypt.setPrivateKey(publicKey);
+    decrypt.setPrivateKey(privateKey);
     var uncrypted;
 
     if (encrypted !== false) {
