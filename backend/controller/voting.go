@@ -93,19 +93,12 @@ psLBYuApa66NcVHJpCECQQDTjI2AQhFc1yRnCU/YgDnSpJVm1nASoRUnU8Jfm3Oz
 uku7JUXcVpt08DFSceCEX9unCuMcT72rAQlLpdZir876
 -----END RSA PRIVATE KEY-----
 `
+	encrypted := data.Signeture
 
-	publishKey := []byte(voter.PublishKey)
-	log.Println(string(publishKey))
-	cipherText, _ := base64.StdEncoding.DecodeString(data.Signeture)
-	// cipherText := (data.Signeture)
-	log.Println(string(data.Signeture))
-	log.Println(string(cipherText))
-	SignedData, err := RsaDecrypt(publishKey, []byte(cipherText))
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("RSA decryption error: %v", err)})
-		return
-	}
-	SignedDigest := fmt.Sprintf("%x", SignedData)
+	// Special thanks to: https://stackoverflow.com/a/53077471
+	privateKey := []byte(voter.PublishKey)
+	cipherText, _ := base64.StdEncoding.DecodeString(encrypted)
+	SignedDigest, _ := RsaDecrypt(privateKey, []byte(cipherText))
 	log.Println(string(SignedDigest))
 	log.Println(string("========="))
 
@@ -115,32 +108,22 @@ uku7JUXcVpt08DFSceCEX9unCuMcT72rAQlLpdZir876
 	hashedData := sha256.Sum256([]byte(hashData))
 	hashDigest := fmt.Sprintf("%x", hashedData)
 	log.Println(string(hashDigest))
-	log.Println(string(data.HashAuthen))
 
-	if (SignedDigest != hashDigest){
+	if string(SignedDigest) != hashDigest {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Can not authention, Please check you private key !"})
 		return
 	}
-	fmt.Print(hashDigest)
-	fmt.Print(SignedDigest)
-	fmt.Print("==========")
-	if hashDigest == SignedDigest {
-		fmt.Print("1")
-	} else {
-		fmt.Print("00000000000")
-	}
-
 	var votings []entity.Voting
+	var hashVotesData = ""
 	db.Preload("Vote").Preload("Candidat").Find(&votings)
 	if len(votings) == 0 {
-		c.JSON(http.StatusNotFound, gin.H{"error": "votings not found"})
-		return
+		hashVotesData = data.StudenID + candidat.NameCandidat
+	} else {
+		for i := 0; i < len(votings); i++ {
+			hashVotesData += votings[i].StudenID + string(votings[i].Candidat.NameCandidat)
+		}
 	}
 
-	var hashVotesData = ""
-	for i := 0; i < len(votings); i++ {
-		hashVotesData += votings[i].StudenID + string(votings[i].Candidat.NameCandidat)
-	}
 	// Hash the concatenated data using SHA-256
 	hashedVotesData := sha256.Sum256([]byte(hashData))
 	HashVotes := fmt.Sprintf("%x", hashedVotesData)
