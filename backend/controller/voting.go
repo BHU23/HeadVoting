@@ -6,15 +6,22 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/BHU23/HeadVoting/entity"
 )
-
+type votingPayload struct {
+    HashVote string
+    Signeture string 
+    StudenID string
+    VoterID *uint
+    CandidatID *uint
+    HashAuthen string
+}
 // POST /voting
 func CreateVoting(c *gin.Context) {
-	var voting entity.Voting
+	var data votingPayload
 	var candidat entity.Candidat
 	var voter entity.Voter
 
 	// bind เข้าตัวแปร voting
-	if err := c.ShouldBindJSON(&voting); err != nil {
+	if err := c.ShouldBindJSON(&data); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
@@ -31,7 +38,7 @@ func CreateVoting(c *gin.Context) {
 	}
 
 	// ค้นหา candidat ด้วย id
-	db.First(&candidat, voting.CandidatID)
+	db.First(&candidat, data.CandidatID)
 	if candidat.ID == 0 {
 		c.JSON(http.StatusNotFound, gin.H{"error": "candidat not found"})
 		return
@@ -39,7 +46,7 @@ func CreateVoting(c *gin.Context) {
 
 	// ค้นหา voter ด้วย id
 
-	if tx := entity.DB().Where("student_id = ?", voting.StudenID).First(&voter); tx.RowsAffected == 0 {
+	if tx := entity.DB().Where("student_id = ?", data.StudenID).First(&voter); tx.RowsAffected == 0 {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "voter not found"})
 		return
 	}
@@ -47,9 +54,9 @@ func CreateVoting(c *gin.Context) {
 
 	// สร้าง Voting
 	u := entity.Voting{
-		StudenID: voting.StudenID,
-		// HashVote: voting.HashVote,
-		Signeture: voting.Signeture, 
+		StudenID: data.StudenID,
+		HashVote: data.HashVote,
+		Signeture: data.Signeture, 
 		VoterID: voter.ID,
 		Voter: voter,
 		CandidatID: candidat.ID,

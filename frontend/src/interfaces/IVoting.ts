@@ -1,3 +1,4 @@
+import { CandidatsInterface } from "./ICandidat";
 import { VotersInterface } from "./IVoter";
 
 export interface VotingsInterface {
@@ -8,5 +9,7 @@ export interface VotingsInterface {
     Voter?: VotersInterface;
     StudenID?:string;
     CandidatID: number;
+    Candidat: CandidatsInterface;
+    HashAuthen?: string;
 }
   
