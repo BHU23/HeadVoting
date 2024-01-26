@@ -1,24 +1,27 @@
 package controller
 
 import (
-	// "fmt"
+	"fmt"
 	"net/http"
+
 	// "crypto/rand"
 	// "crypto/rsa"
-	// "crypto/sha256"
+	"crypto/sha256"
 	// "encoding/base64"
 
 	"github.com/BHU23/HeadVoting/entity"
 	"github.com/gin-gonic/gin"
 )
+
 type votingPayload struct {
-    HashVote string
-    Signeture string 
-    StudenID string
-    VoterID *uint
-    CandidatID *uint
-    HashAuthen string
+	HashVote   string
+	Signeture  string
+	StudenID   string
+	VoterID    *uint
+	CandidatID *uint
+	HashAuthen string
 }
+
 // POST /voting
 func CreateVoting(c *gin.Context) {
 	var data votingPayload
@@ -55,23 +58,31 @@ func CreateVoting(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "voter not found"})
 		return
 	}
-	// // Concatenate the required values for hashing
-	// hashData := voting.StudenID + string(candidat.NameCandidat)
+	// Concatenate the required values for hashing
+	hashData := data.StudenID + string(candidat.NameCandidat)
 
-	// // Hash the concatenated data using SHA-256
-	// hashedData := sha256.Sum256([]byte(hashData))
-	// hashString := fmt.Sprintf("%x", hashedData)
+	// Hash the concatenated data using SHA-256
+	hashedData := sha256.Sum256([]byte(hashData))
+	hashString := fmt.Sprintf("%x", hashedData)
 
+	fmt.Print(hashString)
+	fmt.Print(data.HashVote)
+	fmt.Print("==========")
+	if hashString == data.HashVote {
+		fmt.Print("1")
+	} else {
+		fmt.Print("00000000000")
+	}
 	// สร้าง Voting
 	u := entity.Voting{
-		StudenID: voting.StudenID,
+		StudenID: data.StudenID,
 		// HashVote: string(hashString),
-		HashVote: data.HashVote,
-		Signeture: data.Signeture, 
-		VoterID: voter.ID,
-		Voter: voter,
+		HashVote:   data.HashVote,
+		Signeture:  data.Signeture,
+		VoterID:    voter.ID,
+		Voter:      voter,
 		CandidatID: candidat.ID,
-		Candidat: candidat,
+		Candidat:   candidat,
 	}
 
 	// บันทึก

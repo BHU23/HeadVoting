@@ -12,6 +12,7 @@
     "@types/react-dom": "^18.2.18",
     "antd": "^5.13.2",
     "crypto-js": "^4.2.0",
+    "jsencrypt": "^3.3.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.21.3",
