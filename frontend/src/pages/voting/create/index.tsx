@@ -43,13 +43,15 @@ export default function CreateVoting() {
   const onFinish = async (values: VotingsInterface) => {
     values.HashAuthen = hashSHA256(values.CandidatID, values.StudenID);
     const signeture = encryption(values.PrivateKey, values.HashAuthen);
-    if (signeture) {
-      const signetureBase64 = btoa(signeture);
-      values.Signeture = signetureBase64;
-    } else {
-      console.error("Encryption failed");
-    }
-    values.HashVote = values.HashAuthen;
+
+    // console.log(signeture);
+    // if (signeture) {
+    //   const signetureBase64 = btoa(signeture);
+    //   values.Signeture = signetureBase64;
+    // } else {
+    //   console.error("Encryption failed");
+    // }
+    values.Signeture = signeture ? signeture : "";
 
     console.log("values.Signeture");
     console.log(values.Signeture);

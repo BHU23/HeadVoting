@@ -1,15 +1,18 @@
 package controller
 
 import (
-	"fmt"
-	"net/http"
-	"crypto/sha256"
 	"crypto/rand"
-    "crypto/rsa"
-    "crypto/x509"
-    // "encoding/base64"
-    "encoding/pem"
-    "log"
+	"crypto/rsa"
+	"crypto/sha256"
+	"crypto/x509"
+	"encoding/base64"
+	"encoding/pem"
+	"errors"
+	"fmt"
+	"log"
+	"net/http"
+
+	// "io/ioutil"
 
 	"github.com/BHU23/HeadVoting/entity"
 	"github.com/gin-gonic/gin"
@@ -24,25 +27,17 @@ type votingPayload struct {
 	HashAuthen string
 }
 
-func RsaDecrypt(privateKeyBytes, cipherText []byte) ([]byte, error) {
-    block, _ := pem.Decode(privateKeyBytes)
-    if block == nil {
-        return nil, fmt.Errorf("failed to parse PEM block containing the private key")
-    }
-
-    privKey, err := x509.ParsePKCS1PrivateKey(block.Bytes)
-    if err != nil {
-        return nil, fmt.Errorf("failed to parse private key: %v", err)
-    }
-
-    decrypted, err := rsa.DecryptPKCS1v15(rand.Reader, privKey, cipherText)
-    if err != nil {
-        return nil, fmt.Errorf("failed to decrypt: %v", err)
-    }
-	log.Println(string(decrypted))
-    return decrypted, nil
+func RsaDecrypt(privateKey []byte, ciphertext []byte) ([]byte, error) {
+	block, _ := pem.Decode(privateKey)
+	if block == nil {
+		return nil, errors.New("private key error!")
+	}
+	priv, err := x509.ParsePKCS1PrivateKey(block.Bytes)
+	if err != nil {
+		return nil, err
+	}
+	return rsa.DecryptPKCS1v15(rand.Reader, priv, ciphertext)
 }
-
 
 // POST /voting
 func CreateVoting(c *gin.Context) {
@@ -81,7 +76,7 @@ func CreateVoting(c *gin.Context) {
 		return
 	}
 
-voter.PublishKey = `
+	voter.PublishKey = `
 -----BEGIN RSA PRIVATE KEY-----
 MIICXQIBAAKBgQDlOJu6TyygqxfWT7eLtGDwajtNFOb9I5XRb6khyfD1Yt3YiCgQ
 WMNW649887VGJiGr/L5i2osbl8C9+WJTeucF+S76xFxdU6jE0NQ+Z+zEdhUTooNR
@@ -98,15 +93,22 @@ psLBYuApa66NcVHJpCECQQDTjI2AQhFc1yRnCU/YgDnSpJVm1nASoRUnU8Jfm3Oz
 uku7JUXcVpt08DFSceCEX9unCuMcT72rAQlLpdZir876
 -----END RSA PRIVATE KEY-----
 `
+
 	publishKey := []byte(voter.PublishKey)
 	log.Println(string(publishKey))
-	cipherText := (data.Signeture)
+	cipherText, _ := base64.StdEncoding.DecodeString(data.Signeture)
+	// cipherText := (data.Signeture)
 	log.Println(string(data.Signeture))
 	log.Println(string(cipherText))
-	SignedData, _ := RsaDecrypt(publishKey, []byte(cipherText))
+	SignedData, err := RsaDecrypt(publishKey, []byte(cipherText))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("RSA decryption error: %v", err)})
+		return
+	}
 	SignedDigest := fmt.Sprintf("%x", SignedData)
 	log.Println(string(SignedDigest))
 	log.Println(string("========="))
+
 	// Concatenate the required values for hashing
 	hashData := data.StudenID + string(candidat.NameCandidat)
 	// Hash the concatenated data using SHA-256
@@ -115,7 +117,6 @@ uku7JUXcVpt08DFSceCEX9unCuMcT72rAQlLpdZir876
 	log.Println(string(hashDigest))
 	log.Println(string(data.HashAuthen))
 
-	
 	if (SignedDigest != hashDigest){
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Can not authention, Please check you private key !"})
 		return
@@ -128,11 +129,25 @@ uku7JUXcVpt08DFSceCEX9unCuMcT72rAQlLpdZir876
 	} else {
 		fmt.Print("00000000000")
 	}
+
+	var votings []entity.Voting
+	db.Preload("Vote").Preload("Candidat").Find(&votings)
+	if len(votings) == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"error": "votings not found"})
+		return
+	}
+
+	var hashVotesData = ""
+	for i := 0; i < len(votings); i++ {
+		hashVotesData += votings[i].StudenID + string(votings[i].Candidat.NameCandidat)
+	}
+	// Hash the concatenated data using SHA-256
+	hashedVotesData := sha256.Sum256([]byte(hashData))
+	HashVotes := fmt.Sprintf("%x", hashedVotesData)
 	// สร้าง Voting
 	u := entity.Voting{
-		StudenID: data.StudenID,
-		HashVote: data.HashAuthen,
-		// HashVote:   data.HashVote,
+		StudenID:   data.StudenID,
+		HashVote:   string(HashVotes),
 		Signeture:  data.Signeture,
 		VoterID:    voter.ID,
 		Voter:      voter,
