@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { Form, Input, Button, Card } from "antd";
+import { Form, Input, Button, Card, Popconfirm } from "antd";
 import { Select } from "antd";
 import { VotingsInterface } from "../../../interfaces/IVoting";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   CreateVotings,
   GetCandidats,
@@ -25,7 +25,21 @@ export default function CreateVoting() {
   const [candidats, setCandidats] = useState<CandidatsInterface[]>([]);
   const [dataVoters, setDataVoters] = useState<VotersInterface[]>([]);
   const [dataVoting, setDataVoting] = useState<VotingsInterface[]>([]);
+  const navigate = useNavigate();
+  const [showPopconfirm, setShowPopconfirm] = useState(false);
 
+  const handleButtonClick = () => {
+    if (dataVoting.length === 10) {
+      navigate(`/VotingResults`)
+    } else {
+      setShowPopconfirm(true);
+    }
+  };
+
+  const handlePopconfirmCancel = () => {
+    setShowPopconfirm(false);
+  };
+  
   const onFinish = async (values: VotingsInterface) => {
     values.HashAuthen = hashSHA256(values.CandidatID, values.StudenID);
     const signeture = encryption(values.PrivateKey, values.HashAuthen);
@@ -50,6 +64,7 @@ export default function CreateVoting() {
         CandidatID: undefined,
         PrivateKey: undefined,
       });
+      getVoting();
     } else {
       toast.error("บันทึกข้อมูลไม่สำเร็จ " + res.message);
     }
@@ -224,7 +239,7 @@ export default function CreateVoting() {
         </div>
         <TextArea
           name="HashVote"
-          value={dataVoting.length > 0 ? dataVoting[0].HashVote : ""}
+          value={dataVoting.length > 0 ? dataVoting[dataVoting.length - 1].HashVote : ""}
           autoSize={{ minRows: 12, maxRows: 12 }}
           style={{ width: "100%" }}
         />
@@ -251,9 +266,34 @@ export default function CreateVoting() {
         </div>
 
         <div>
-          <Link to={"/VotingResults"} className="VotingResultsButton">
+          <Button 
+            style={{
+              background:'#21A6A6', 
+              color:'#ffff', 
+              fontWeight:'500',
+              fontSize:'14px',
+              padding:'10px 20px',
+              textAlign:'center',
+              justifyContent:'center',
+              height:'auto',
+              alignItems:'center',
+              width:'100%'
+              }}
+              className="VotingResultsButton"
+            onClick={handleButtonClick}
+          >
             ผลการเลือกตั้ง
-          </Link>
+          </Button>
+
+          <Popconfirm
+            title="Error to Voting Results"
+            description="Please check that everyone has voted?"
+            visible={showPopconfirm}
+            onCancel={handlePopconfirmCancel}
+            okButtonProps={{ style: { display: 'none' } }}
+            cancelButtonProps={{ style: { display: '' } }}
+          >
+          </Popconfirm>
         </div>
       </Card>
     </div>
