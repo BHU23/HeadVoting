@@ -3,7 +3,6 @@ package controller
 import (
 	"crypto"
 	"crypto/rsa"
-	"crypto/sha256"
 	"crypto/sha512"
 	"crypto/x509"
 	"encoding/base64"
@@ -119,7 +118,7 @@ func CreateVoting(c *gin.Context) {
 	}
 
 	// Hash the concatenated data using SHA-256
-	hashedVotesData := sha256.Sum256([]byte(hashVotesData))
+	hashedVotesData := sha512.Sum512([]byte(hashVotesData))
 	HashVotes := fmt.Sprintf("%x", hashedVotesData)
 	// สร้าง Voting
 	u := entity.Voting{

@@ -16,7 +16,9 @@ import * as CryptoJS from "crypto-js";
 import * as forge from "node-forge";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { JSEncrypt } from "jsencrypt";
 const { Option } = Select; // Move the Select import here
+
 
 export default function CreateVoting() {
   const [form] = Form.useForm();
@@ -78,8 +80,110 @@ ${values.PrivateKey}
       setCandidats(res);
     }
   };
+  async function generateKeysForVoters() {
+    const voters = [
+      {
+        StudentID: "B6400001",
+        StudentName: "s1",
+        PublishKey: "",
+        PrivateKey: "",
+      },
+      {
+        StudentID: "B6400002",
+        StudentName: "s2",
+        PublishKey: "",
+        PrivateKey: "",
+      },
+      {
+        StudentID: "B6400003",
+        StudentName: "s3",
+        PublishKey: "",
+        PrivateKey: "",
+      },
+      {
+        StudentID: "B6400004",
+        StudentName: "s4",
+        PublishKey: "",
+        PrivateKey: "",
+      },
+      {
+        StudentID: "B6400005",
+        StudentName: "s5",
+        PublishKey: "",
+        PrivateKey: "",
+      },
+      {
+        StudentID: "B6400006",
+        StudentName: "s6",
+        PublishKey: "",
+        PrivateKey: "",
+      },
+      {
+        StudentID: "B6400007",
+        StudentName: "s7",
+        PublishKey: "",
+        PrivateKey: "",
+      },
+      {
+        StudentID: "B6400008",
+        StudentName: "s8",
+        PublishKey: "",
+        PrivateKey: "",
+      },
+      {
+        StudentID: "B6400009",
+        StudentName: "s9",
+        PublishKey: "",
+        PrivateKey: "",
+      },
+      {
+        StudentID: "B6400010",
+        StudentName: "s10",
+        PublishKey: "",
+        PrivateKey: "",
+      },
+    ];
 
-  //// for create signature by JSEncrypt but 
+    const updatedVoters = [];
+
+    for (const voter of voters) {
+      const encrypt = new JSEncrypt();
+
+      // Generate key pair
+      const privateKey = encrypt.getPrivateKey();
+      const publicKey = encrypt.getPublicKey();
+
+      voter.PrivateKey = privateKey;
+      voter.PublishKey = publicKey;
+      updatedVoters.push(voter);
+    }
+
+    console.log("updatedVoters");
+    console.log(updatedVoters);
+  }
+
+  const getVoters = async () => {
+    let res = await GetVoters();
+    if (res) {
+      setDataVoters(res);
+    }
+  };
+  const getVoting = async () => {
+    let res = await GetVotingList();
+    if (res) {
+      setDataVoting(res);
+    }
+  };
+
+  useEffect(() => {
+    getCandidats();
+    getVoters();
+    getVoting();
+    // generateKeysForVoters();
+  }, []);
+
+  //#########################################################
+  //// for create signature by JSEncrypt but
   //  const encrypt = new JSEncrypt();
   //  encrypt.setPrivateKey(privateKey1);
   // const onFinish = async (values: VotingsInterface) => {
@@ -141,26 +245,9 @@ ${values.PrivateKey}
   //   }
   // };
 
-  const getVoters = async () => {
-    let res = await GetVoters();
-    if (res) {
-      setDataVoters(res);
-    }
-  };
-  const getVoting = async () => {
-    let res = await GetVotingList();
-    if (res) {
-      setDataVoting(res);
-    }
-  };
-
-  useEffect(() => {
-    getCandidats();
-    getVoters();
-    getVoting();
-  }, []);
-
-  //   const encryption = (privateKey: string | undefined, hashAuthen: string) => {
+  //#########################################################
+  //// for encryption by publicKey
+  //   const encryption = (publicKey: string | undefined, hashAuthen: string) => {
   //     var publicKey = `;
   //     -----BEGIN PUBLIC KEY-----
   //     MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDlOJu6TyygqxfWT7eLtGDwajtN
@@ -226,7 +313,7 @@ ${values.PrivateKey}
 
   //     return encrypted;
   //   };
-
+  //#########################################################
   //   const createSignature = (privateKey: string, data: string): string => {
   //     const encrypt = new JSEncrypt();
   //     encrypt.setPrivateKey(privateKey);
@@ -247,7 +334,8 @@ ${values.PrivateKey}
   //     // return signature;
   //     return signature ? signature : "";
   //   };
-
+  //#########################################################
+  //// key test
   //   const privateKey = `
   // -----BEGIN RSA PRIVATE KEY-----
   // MIICXQIBAAKBgQDlOJu6TyygqxfWT7eLtGDwajtNFOb9I5XRb6khyfD1Yt3YiCgQ
@@ -272,26 +360,19 @@ ${values.PrivateKey}
   // xFxdU6jE0NQ+Z+zEdhUTooNRaY5nZiu5PgDB0ED/ZKBUSLKL7eibMxZtMlUDHjm4
   // gwQco1KRMDSmXSMkDwIDAQAB
   // -----END PUBLIC KEY-----`;
+  //#########################################################
+  //// for hash sha512
+  // const hashSHA512 = (
+  //   cadidateID: number | undefined,
+  //   sudantID: string | undefined
+  // ) => {
+  //   const candidat = candidats.filter((c) => c.ID === cadidateID);
+  //   let generated_signature = CryptoJS.SHA512(
+  //     sudantID + candidat[0].NameCandidat
+  //   ).toString(CryptoJS.enc.Hex);
 
-  const hashSHA512 = (
-    cadidateID: number | undefined,
-    sudantID: string | undefined
-  ) => {
-    const candidat = candidats.filter((c) => c.ID === cadidateID);
-    let generated_signature = CryptoJS.SHA512(
-      sudantID + candidat[0].NameCandidat
-    ).toString(CryptoJS.enc.Hex);
-
-    return generated_signature;
-  };
-  //   const hashSHA512A = (
-  //    str: string
-  //   ) => {
-  //     console.log(str);
-  //     let generated_signature = CryptoJS.SHA512(str).toString(CryptoJS.enc.Hex);
-
-  //     return generated_signature;
-  //   };
+  //   return generated_signature;
+  // };
 
   const [showPopconfirm, setShowPopconfirm] = useState(false);
 
