@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"bytes"
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/sha256"
@@ -9,8 +10,8 @@ import (
 	"encoding/pem"
 	"errors"
 	"fmt"
-	"log"
 	"net/http"
+	"log"
 
 	// "io/ioutil"
 
@@ -27,17 +28,38 @@ type votingPayload struct {
 	HashAuthen string
 }
 
-func RsaDecrypt(privateKey []byte, ciphertext []byte) ([]byte, error) {
-	block, _ := pem.Decode(privateKey)
-	if block == nil {
-		return nil, errors.New("private key error!")
-	}
-	priv, err := x509.ParsePKCS1PrivateKey(block.Bytes)
-	if err != nil {
-		return nil, err
-	}
-	return rsa.DecryptPKCS1v15(rand.Reader, priv, ciphertext)
+//	func RsaDecrypt(privateKey []byte, ciphertext []byte) ([]byte, error) {
+//		block, _ := pem.Decode(privateKey)
+//		if block == nil {
+//			return nil, errors.New("private key error!")
+//		}
+//		priv, err := x509.ParsePKCS1PrivateKey(block.Bytes)
+//		if err != nil {
+//			return nil, err
+//		}
+//		return rsa.DecryptPKCS1v15(rand.Reader, priv, ciphertext)
+//	}
+func RsaDecrypt(publicKey []byte, ciphertext []byte) ([]byte, error) {
+    block, _ := pem.Decode(publicKey)
+    if block == nil {
+        return nil, errors.New("public key error!")
+    }
+    pub, err := x509.ParsePKIXPublicKey(block.Bytes)
+    if err != nil {
+        return nil, err
+    }
+    rsaPub, ok := pub.(*rsa.PublicKey)
+    if !ok {
+        return nil, errors.New("invalid public key type")
+    }
+	log.Println(pub)
+	log.Println(rsaPub)
+	log.Println("=====")
+    // Use RSA encryption with public key for decryption
+    return rsa.EncryptPKCS1v15(rand.Reader, rsaPub, ciphertext)
+    // return rsa.DecryptPKCS1v15(rand.Reader, rsaPub, ciphertext)
 }
+
 
 // POST /voting
 func CreateVoting(c *gin.Context) {
@@ -76,41 +98,82 @@ func CreateVoting(c *gin.Context) {
 		return
 	}
 
+	// 	voter.PublishKey = `
+	// -----BEGIN RSA PRIVATE KEY-----
+	// MIICXQIBAAKBgQDlOJu6TyygqxfWT7eLtGDwajtNFOb9I5XRb6khyfD1Yt3YiCgQ
+	// WMNW649887VGJiGr/L5i2osbl8C9+WJTeucF+S76xFxdU6jE0NQ+Z+zEdhUTooNR
+	// aY5nZiu5PgDB0ED/ZKBUSLKL7eibMxZtMlUDHjm4gwQco1KRMDSmXSMkDwIDAQAB
+	// AoGAfY9LpnuWK5Bs50UVep5c93SJdUi82u7yMx4iHFMc/Z2hfenfYEzu+57fI4fv
+	// xTQ//5DbzRR/XKb8ulNv6+CHyPF31xk7YOBfkGI8qjLoq06V+FyBfDSwL8KbLyeH
+	// m7KUZnLNQbk8yGLzB3iYKkRHlmUanQGaNMIJziWOkN+N9dECQQD0ONYRNZeuM8zd
+	// 8XJTSdcIX4a3gy3GGCJxOzv16XHxD03GW6UNLmfPwenKu+cdrQeaqEixrCejXdAF
+	// z/7+BSMpAkEA8EaSOeP5Xr3ZrbiKzi6TGMwHMvC7HdJxaBJbVRfApFrE0/mPwmP5
+	// rN7QwjrMY+0+AbXcm8mRQyQ1+IGEembsdwJBAN6az8Rv7QnD/YBvi52POIlRSSIM
+	// V7SwWvSK4WSMnGb1ZBbhgdg57DXaspcwHsFV7hByQ5BvMtIduHcT14ECfcECQATe
+	// aTgjFnqE/lQ22Rk0eGaYO80cc643BXVGafNfd9fcvwBMnk0iGX0XRsOozVt5Azil
+	// psLBYuApa66NcVHJpCECQQDTjI2AQhFc1yRnCU/YgDnSpJVm1nASoRUnU8Jfm3Oz
+	// uku7JUXcVpt08DFSceCEX9unCuMcT72rAQlLpdZir876
+	// -----END RSA PRIVATE KEY-----
+	// `
 	voter.PublishKey = `
------BEGIN RSA PRIVATE KEY-----
-MIICXQIBAAKBgQDlOJu6TyygqxfWT7eLtGDwajtNFOb9I5XRb6khyfD1Yt3YiCgQ
-WMNW649887VGJiGr/L5i2osbl8C9+WJTeucF+S76xFxdU6jE0NQ+Z+zEdhUTooNR
-aY5nZiu5PgDB0ED/ZKBUSLKL7eibMxZtMlUDHjm4gwQco1KRMDSmXSMkDwIDAQAB
-AoGAfY9LpnuWK5Bs50UVep5c93SJdUi82u7yMx4iHFMc/Z2hfenfYEzu+57fI4fv
-xTQ//5DbzRR/XKb8ulNv6+CHyPF31xk7YOBfkGI8qjLoq06V+FyBfDSwL8KbLyeH
-m7KUZnLNQbk8yGLzB3iYKkRHlmUanQGaNMIJziWOkN+N9dECQQD0ONYRNZeuM8zd
-8XJTSdcIX4a3gy3GGCJxOzv16XHxD03GW6UNLmfPwenKu+cdrQeaqEixrCejXdAF
-z/7+BSMpAkEA8EaSOeP5Xr3ZrbiKzi6TGMwHMvC7HdJxaBJbVRfApFrE0/mPwmP5
-rN7QwjrMY+0+AbXcm8mRQyQ1+IGEembsdwJBAN6az8Rv7QnD/YBvi52POIlRSSIM
-V7SwWvSK4WSMnGb1ZBbhgdg57DXaspcwHsFV7hByQ5BvMtIduHcT14ECfcECQATe
-aTgjFnqE/lQ22Rk0eGaYO80cc643BXVGafNfd9fcvwBMnk0iGX0XRsOozVt5Azil
-psLBYuApa66NcVHJpCECQQDTjI2AQhFc1yRnCU/YgDnSpJVm1nASoRUnU8Jfm3Oz
-uku7JUXcVpt08DFSceCEX9unCuMcT72rAQlLpdZir876
------END RSA PRIVATE KEY-----
+-----BEGIN PUBLIC KEY-----
+MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDlOJu6TyygqxfWT7eLtGDwajtN
+FOb9I5XRb6khyfD1Yt3YiCgQWMNW649887VGJiGr/L5i2osbl8C9+WJTeucF+S76
+xFxdU6jE0NQ+Z+zEdhUTooNRaY5nZiu5PgDB0ED/ZKBUSLKL7eibMxZtMlUDHjm4
+gwQco1KRMDSmXSMkDwIDAQAB
+-----END PUBLIC KEY-----
 `
+	// encrypted := data.Signeture
+
+	// // Special thanks to: https://stackoverflow.com/a/53077471
+	// privateKey := []byte(voter.PublishKey)
+	// cipherText, _ := base64.StdEncoding.DecodeString(encrypted)
+	// SignedDigest, _ := RsaDecrypt(privateKey, []byte(cipherText))
+	// log.Println(string(SignedDigest))
+	// log.Println(string("========="))
+
+	// // Concatenate the required values for hashing
+	// hashData := data.StudenID + string(candidat.NameCandidat)
+	// // Hash the concatenated data using SHA-256
+	// hashedData := sha256.Sum256([]byte(hashData))
+	// hashDigest := fmt.Sprintf("%x", hashedData)
+	// log.Println(string(hashDigest))
+
+	// if string(SignedDigest) != hashDigest {
+	// 	c.JSON(http.StatusBadRequest, gin.H{"error": "Can not authention, Please check you private key !"})
+	// 	return
+	// }
 	encrypted := data.Signeture
 
-	// Special thanks to: https://stackoverflow.com/a/53077471
-	privateKey := []byte(voter.PublishKey)
-	cipherText, _ := base64.StdEncoding.DecodeString(encrypted)
-	SignedDigest, _ := RsaDecrypt(privateKey, []byte(cipherText))
-	log.Println(string(SignedDigest))
+	// Decode base64-encoded ciphertext
+	cipherText, err := base64.StdEncoding.DecodeString(encrypted)
+	if err != nil {
+		// Handle decoding error
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Base64 decoding error"})
+		return
+	}
+
+	// Decrypt using RSA publicKey key
+	publicKey := []byte(voter.PublishKey)
+	decryptedDigest, err := RsaDecrypt(publicKey, cipherText)
+	if err != nil {
+		// Handle decryption error
+		c.JSON(http.StatusBadRequest, gin.H{"error": "RSA decryption error"})
+		return
+	}
+	log.Println(string(decryptedDigest))
 	log.Println(string("========="))
 
 	// Concatenate the required values for hashing
 	hashData := data.StudenID + string(candidat.NameCandidat)
+
 	// Hash the concatenated data using SHA-256
 	hashedData := sha256.Sum256([]byte(hashData))
 	hashDigest := fmt.Sprintf("%x", hashedData)
 	log.Println(string(hashDigest))
-
-	if string(SignedDigest) != hashDigest {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Can not authention, Please check you private key !"})
+	// Compare the decrypted digest with the hash
+	if !bytes.Equal(decryptedDigest, []byte(hashDigest)) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Authentication failed. Check your private key!"})
 		return
 	}
 	var votings []entity.Voting

@@ -85,7 +85,6 @@ export default function CreateVoting() {
   }, []);
 
   const encryption = (privateKey: string | undefined, hashAuthen: string) => {
-    var encrypt = new JSEncrypt();
 
     var publicKey = `
     -----BEGIN PUBLIC KEY-----
@@ -95,7 +94,7 @@ export default function CreateVoting() {
     gwQco1KRMDSmXSMkDwIDAQAB
     -----END PUBLIC KEY-----`;
 
-    encrypt.setPublicKey(publicKey);
+    
 
     privateKey = `
     -----BEGIN RSA PRIVATE KEY-----
@@ -113,11 +112,31 @@ export default function CreateVoting() {
     psLBYuApa66NcVHJpCECQQDTjI2AQhFc1yRnCU/YgDnSpJVm1nASoRUnU8Jfm3Oz
     uku7JUXcVpt08DFSceCEX9unCuMcT72rAQlLpdZir876
     -----END RSA PRIVATE KEY-----`;
+    // var encrypt = new JSEncrypt();
+    // // encrypt.setPublicKey(publicKey);
+    // // Assign our encryptor to utilize the public key.
+    // encrypt.setPrivateKey(privateKey);
 
-    // Assign our encryptor to utilize the public key.
+    // // Perform our encryption based on our public key - only private key can read it!
+    // var encrypted = encrypt.encrypt(hashAuthen);
+
+    // var decrypt = new JSEncrypt();
+    // // decrypt.setPrivateKey(privateKey);
+    // decrypt.setPublicKey(publicKey);
+    // var uncrypted;
+
+    // if (encrypted !== false) {
+    //   uncrypted = decrypt.decrypt(encrypted);
+    //   console.log("Decrypted:", uncrypted);
+    // } else {
+    //   console.error("Encryption failed");
+    // }
+    // return encrypted;
+    
+    var encrypt = new JSEncrypt();
     encrypt.setPublicKey(publicKey);
 
-    // Perform our encryption based on our public key - only private key can read it!
+    // Perform encryption using the public key
     var encrypted = encrypt.encrypt(hashAuthen);
 
     var decrypt = new JSEncrypt();
@@ -125,11 +144,13 @@ export default function CreateVoting() {
     var uncrypted;
 
     if (encrypted !== false) {
+      // Perform decryption using the private key
       uncrypted = decrypt.decrypt(encrypted);
       console.log("Decrypted:", uncrypted);
     } else {
       console.error("Encryption failed");
     }
+
     return encrypted;
   };
 
