@@ -2,13 +2,16 @@ package controller
 
 import (
 	"bytes"
-	"crypto/rand"
 	"crypto"
+
+	// "crypto/rand"
 	"crypto/rsa"
 	"crypto/sha256"
+	"crypto/sha512"
 	"crypto/x509"
 
 	// "encoding/base64"
+	"encoding/base64"
 	"encoding/pem"
 	"errors"
 	"fmt"
@@ -30,7 +33,6 @@ type votingPayload struct {
 	StudenID   string
 	VoterID    *uint
 	CandidatID *uint
-	HashAuthen string
 }
 
 // 1
@@ -47,6 +49,7 @@ type votingPayload struct {
 //		return rsa.DecryptPKCS1v15(rand.Reader, priv, ciphertext)
 //	}
 //
+
 // 2
 func RsaDecrypt(publicKey []byte, ciphertext []byte) ([]byte, error) {
 	block, _ := pem.Decode(publicKey)
@@ -129,80 +132,35 @@ func CreateVoting(c *gin.Context) {
 		return
 	}
 
-	PrivateKey := `
------BEGIN RSA PRIVATE KEY-----
-MIICXQIBAAKBgQDlOJu6TyygqxfWT7eLtGDwajtNFOb9I5XRb6khyfD1Yt3YiCgQ
-WMNW649887VGJiGr/L5i2osbl8C9+WJTeucF+S76xFxdU6jE0NQ+Z+zEdhUTooNR
-aY5nZiu5PgDB0ED/ZKBUSLKL7eibMxZtMlUDHjm4gwQco1KRMDSmXSMkDwIDAQAB
-AoGAfY9LpnuWK5Bs50UVep5c93SJdUi82u7yMx4iHFMc/Z2hfenfYEzu+57fI4fv
-xTQ//5DbzRR/XKb8ulNv6+CHyPF31xk7YOBfkGI8qjLoq06V+FyBfDSwL8KbLyeH
-m7KUZnLNQbk8yGLzB3iYKkRHlmUanQGaNMIJziWOkN+N9dECQQD0ONYRNZeuM8zd
-8XJTSdcIX4a3gy3GGCJxOzv16XHxD03GW6UNLmfPwenKu+cdrQeaqEixrCejXdAF
-z/7+BSMpAkEA8EaSOeP5Xr3ZrbiKzi6TGMwHMvC7HdJxaBJbVRfApFrE0/mPwmP5
-rN7QwjrMY+0+AbXcm8mRQyQ1+IGEembsdwJBAN6az8Rv7QnD/YBvi52POIlRSSIM
-V7SwWvSK4WSMnGb1ZBbhgdg57DXaspcwHsFV7hByQ5BvMtIduHcT14ECfcECQATe
-aTgjFnqE/lQ22Rk0eGaYO80cc643BXVGafNfd9fcvwBMnk0iGX0XRsOozVt5Azil
-psLBYuApa66NcVHJpCECQQDTjI2AQhFc1yRnCU/YgDnSpJVm1nASoRUnU8Jfm3Oz
-uku7JUXcVpt08DFSceCEX9unCuMcT72rAQlLpdZir876
------END RSA PRIVATE KEY-----
-`
-	voter.PublishKey = `
------BEGIN PUBLIC KEY-----
-MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDlOJu6TyygqxfWT7eLtGDwajtN
-FOb9I5XRb6khyfD1Yt3YiCgQWMNW649887VGJiGr/L5i2osbl8C9+WJTeucF+S76
-xFxdU6jE0NQ+Z+zEdhUTooNRaY5nZiu5PgDB0ED/ZKBUSLKL7eibMxZtMlUDHjm4
-gwQco1KRMDSmXSMkDwIDAQAB
------END PUBLIC KEY-----
-`
-	// Generate a new RSA key pair
-	// privateKey, err := rsa.GenerateKey(rand.Reader, 2048)
-	// if err != nil {
-	// 	fmt.Println("Error generating RSA key pair:", err)
-	// 	return
-	// }
-	privateKey := []byte(PrivateKey)
-	block1, _ := pem.Decode(privateKey)
-	if block1 == nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Error decoding private key block"})
-		return
-	}
-	pri, err := x509.ParsePKCS1PrivateKey(block1.Bytes)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Error parsing private key", "details": err.Error()})
-		return
-	}
-
-	// Example data to be signed
-	// daSrecret := "Hello, RSA!"
-	// hasheddaSrecret := sha256.Sum256([]byte(daSrecret))
+	// 	voter.PublishKey = `
+	// -----BEGIN PUBLIC KEY-----
+	// MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDlOJu6TyygqxfWT7eLtGDwajtN
+	// FOb9I5XRb6khyfD1Yt3YiCgQWMNW649887VGJiGr/L5i2osbl8C9+WJTeucF+S76
+	// xFxdU6jE0NQ+Z+zEdhUTooNRaY5nZiu5PgDB0ED/ZKBUSLKL7eibMxZtMlUDHjm4
+	// gwQco1KRMDSmXSMkDwIDAQAB
+	// -----END PUBLIC KEY-----
+	// `
 
 	hashData := data.StudenID + string(candidat.NameCandidat)
-	// Hash the concatenated data using SHA-256
-	hasheddaSrecret := sha256.Sum256([]byte(hashData))
+	// Hash the concatenated data using SHA-512
+	hasheddaSrecret := sha512.Sum512([]byte(hashData))
 	hashDigest := fmt.Sprintf("%x", hasheddaSrecret)
 	fmt.Println("hashDigest:", hashDigest)
 
-
-	// Sign the data using the private key
-	signature, err := rsa.SignPKCS1v15(rand.Reader, pri, crypto.SHA256, hasheddaSrecret[:])
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Error signing data", "details": err.Error()})
-		return
-	}
 	inPutSignature := data.Signeture
 	signatureInput := []byte(inPutSignature)
-
 	fmt.Println("signatureInput:", signatureInput)
-	fmt.Println("Signature:", signature)
 	fmt.Println("signatureInput:", inPutSignature)
-	fmt.Println("Signature:", string(signature))
+	fmt.Println("voter.PublishKey:", voter.PublishKey)
 
-	// hashData := data.StudenID + string(candidat.NameCandidat)
-	// // Hash the concatenated data using SHA-256
-	// hashedData := sha256.Sum256([]byte(hashData))
-	// // hashDigest := fmt.Sprintf("%x", hashedData)
+	// formattedPublicKey := fmt.Sprintf("-----BEGIN PUBLIC KEY-----\n%s\n-----END PUBLIC KEY-----", voter.PublishKey)
+	// publicKey := []byte(formattedPublicKey)
+	publicKeyString := "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCRl3fhbfVHn8+45qhNaVV3ApaLK6iQZ+mpwY1Cme7iSXYntbQCvhpXxILDnYEGGJu1Yndtgn+HQMnJH3lAeb1vDuOlVJF34wkQcwqAVuxE0QS92mJvTIVhU89TO+mFMzYV5Vklj2Smg6M/fQDIvLBIUJGQTRT7IK5bYSAo+RqXwIDAQAB"
 
-	publicKey := []byte(voter.PublishKey)
+	// Insert line breaks and headers into the public key
+	formattedPublicKey := fmt.Sprintf("-----BEGIN PUBLIC KEY-----\n%s\n-----END PUBLIC KEY-----", publicKeyString)
+
+	publicKey := []byte(formattedPublicKey)
 	block, _ := pem.Decode(publicKey)
 	if block == nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Error decoding public key block"})
@@ -219,9 +177,15 @@ gwQco1KRMDSmXSMkDwIDAQAB
 		return
 	}
 
-	err = rsa.VerifyPKCS1v15(pub, crypto.SHA256, hasheddaSrecret[:], signature)
+	signatureBytes, err := base64.StdEncoding.DecodeString(inPutSignature)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error":"Signature verification failed:"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Error converting to RSA public key"})
+		return
+	}
+
+	err = rsa.VerifyPKCS1v15(pub, crypto.SHA512, hasheddaSrecret[:], signatureBytes)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Signature verification failed:"})
 		return
 	}
 

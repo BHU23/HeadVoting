@@ -11,8 +11,10 @@ import {
 import { CandidatsInterface } from "../../../interfaces/ICandidat";
 import { VotersInterface } from "../../../interfaces/IVoter";
 import TextArea from "rc-textarea";
-import CryptoJS from "crypto-js";
+import * as CryptoJS from "crypto-js";
 import { JSEncrypt } from "jsencrypt";
+import * as forge from "node-forge";
+// const forge = require("node-forge");
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 const { Option } = Select; // Move the Select import here
@@ -23,34 +25,50 @@ export default function CreateVoting() {
   const [dataVoters, setDataVoters] = useState<VotersInterface[]>([]);
   const [dataVoting, setDataVoting] = useState<VotingsInterface[]>([]);
   const navigate = useNavigate();
+  const privateKey1 = `
+-----BEGIN RSA PRIVATE KEY-----
+MIICXQIBAAKBgQCRl3fhbfVHn8+45qhNaVV3ApaLK6iQZ+mpwY1Cme7iSXYntbQC
+vhpXxILDnYEGGJu1Yndtgn+HQMnJH3lAeb1vDuOlVJF34wkQcwqAVuxE0QS92mJv
+TIVhU89TO+mFMzYV5Vklj2Smg6M/fQDIvLBIUJGRQTRT7IK5bYSAo+RqXwIDAQAB
+AoGAPABBfp0zZcY99ETS/bw4ZaiiZE6k1IaOrNBAqD8KTSXbVPg0bKDt+FfbUETc
+BKglm7Yt4+rRJeuUfZfD/8dsQvYAT5ekE4ZNKOSRITptUkETHSYgyNBWIKfEW4Lb
+kJ0QxQvvEdsESAoYZSytKeEMvOGc1eBkBoXy/U7PJu+wIVkCQQDTvCr4wVsj+O60
+12YZcu6KYYu+LdMX+P0ZOxf37Z0QTkhEtyVHUtroXCj2in1cY5FeeXr+tEkNckyF
+NyLTMVk9AkEAsAdg9QrqCxAtZ2WdSqcyN3WONW/7ocIYhFlDpHG1WHRRe7REkAI4
+z+z3LgRD1FPS82ef2E5UWPgv2ZjTZ6GzywJBAMWizWWWbjE8qevpZyb4DcrjVGI3
+OeQViIIlk7DbfZD70R866LQTlbvwUlgWWv+C/Oz3baQTumCvwNdT6NDDLm0CQGQs
+Hsnz5xJap2vy0Jr+IL6cwEu6qVj5KpiOb8byCoAG2aPrByVojkoNEPD37l2zQhXP
+/4/Jq4hh3GEY7h1IURcCQQDRQL4B1/1zxw5kVRtaIiERmq+PsvCOuLGMQJF7rxp1
+0L1SPSOE5ytshYBSF231hNameDGVzOhTo3FBFG3sNfso
+-----END RSA PRIVATE KEY-----`;
 
   const onFinish = async (values: VotingsInterface) => {
     const candidat = candidats.filter((c) => c.ID === values.CandidatID);
-    const data =  String(values.StudenID)+String(candidat[0].NameCandidat);
+    const data = String(values.StudenID) + String(candidat[0].NameCandidat);
     console.log(data);
-    // const dataToSign = "Hello, RSA!";
+    
+    const privateKey = forge.pki.privateKeyFromPem(privateKey1);
 
-    // Sign the data with the private key (in the client)
-    const signature = createSignature("",data);
-    values.Signeture = signature ? signature : "";
+    // Create a SHA-512 hash of the data
+    const md = forge.md.sha512.create();
+    md.update(data, "utf8");
+    const hash = md.digest().getBytes();
+    const hashH = md.digest().toHex();
+    console.log("Hash:", hashH);
 
-    values.HashAuthen = hashSHA256(values.CandidatID,values.StudenID);
-    const signeture = encryption(values.PrivateKey, values.HashAuthen);
-    if (signeture) {
-      const signetureBase64 = btoa(signeture);
-      values.Signeture = signetureBase64;
-    } else {
-      console.error("Encryption failed");
-    }
-    // values.Signeture = signeture ? signeture : "";
+    // Sign the hash with RSA PKCS#1 v1.5 padding
+    const signature = privateKey.sign(md);
 
-    console.log("values.Signeture");
-    console.log(values.Signeture);
-    console.log("values.HashAuthen");
+    console.log("Signature:", forge.util.encode64(signature));
+    // Now you can use the 'signature' variable as needed
+    console.log("Signature:", signature);
+    values.Signeture = signature ? forge.util.encode64(signature) : "";
+
+    values.HashAuthen = hashSHA512(values.CandidatID, values.StudenID);
+    console.log("valuesHash");
     console.log(values.HashAuthen);
-    // Creating a digital signature
-    const signature1 = createSignature(privateKey, data);
-    console.log("Digital Signature:", signature1);
+    console.log(hashH);
+
     let res = await CreateVotings(values);
     if (res.status) {
       toast.success("บันทึกข้อมูลสำเร็จ");
@@ -73,6 +91,66 @@ export default function CreateVoting() {
       setCandidats(res);
     }
   };
+  //  const encrypt = new JSEncrypt();
+  //  encrypt.setPrivateKey(privateKey1);
+  // const onFinish = async (values: VotingsInterface) => {
+  //   const candidat = candidats.filter((c) => c.ID === values.CandidatID);
+  //   const data = String(values.StudenID) + String(candidat[0].NameCandidat);
+  //   console.log(data);
+
+  //   // Create a hash of the data using SHA-512 with CryptoJS
+  //   // const hashedData = CryptoJS.SHA512(data).toString(CryptoJS.enc.Hex);
+  //   // Use a lambda function for the hash method
+  //   const digestMethod = (str: string) => {
+  //     // For simplicity, let's assume data is ASCII encoded
+  //     const hash = hashSHA512A(str);
+  //     console.log("hash");
+  //     console.log(hash);
+  //     return hash;
+  //   };
+  //   // Sign the hashed data using RSA private key with jsencrypt
+  //   const signature = encrypt.sign(data, digestMethod, "sha512");
+
+  //   // Now you can use the 'signature' variable as needed
+  //   console.log("Signature:", signature);
+  //   values.Signeture = signature ? signature: "";
+  //   // Sign the data with the private key (in the client)
+  //   // const signature1 = createSignature("", data);
+  //   // values.Signeture = signature1 ? signature1 : "";
+
+  //   values.HashAuthen = hashSHA512(values.CandidatID, values.StudenID);
+  //   // const signeture = encryption(values.PrivateKey, values.HashAuthen);
+  //   // if (signeture) {
+  //   //   const signetureBase64 = btoa(signeture);
+  //   //   values.Signeture = signetureBase64;
+  //   // } else {
+  //   //   console.error("Encryption failed");
+  //   // }
+  //   // values.Signeture = signeture ? signeture : "";
+
+  //   console.log("values.Signeture");
+  //   console.log(values.Signeture);
+  //   console.log("values.HashAuthen");
+  //   console.log(values.HashAuthen);
+  //   // Creating a digital signature
+  //   const signature2 = createSignature(privateKey, data);
+  //   console.log("Digital Signature2:", signature2);
+  //   let res = await CreateVotings(values);
+  //   if (res.status) {
+  //     toast.success("บันทึกข้อมูลสำเร็จ");
+
+  //     setTimeout(function () {}, 2000);
+
+  //     form.setFieldsValue({
+  //       StudenID: undefined,
+  //       CandidatID: undefined,
+  //       PrivateKey: undefined,
+  //     });
+  //     getVoting();
+  //   } else {
+  //     toast.error("บันทึกข้อมูลไม่สำเร็จ " + res.message);
+  //   }
+  // };
 
   const getVoters = async () => {
     let res = await GetVoters();
@@ -93,133 +171,138 @@ export default function CreateVoting() {
     getVoting();
   }, []);
 
-  const encryption = (privateKey: string | undefined, hashAuthen: string) => {
-    var publicKey = `
-    -----BEGIN PUBLIC KEY-----
-    MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDlOJu6TyygqxfWT7eLtGDwajtN
-    FOb9I5XRb6khyfD1Yt3YiCgQWMNW649887VGJiGr/L5i2osbl8C9+WJTeucF+S76
-    xFxdU6jE0NQ+Z+zEdhUTooNRaY5nZiu5PgDB0ED/ZKBUSLKL7eibMxZtMlUDHjm4
-    gwQco1KRMDSmXSMkDwIDAQAB
-    -----END PUBLIC KEY-----`;
+  //   const encryption = (privateKey: string | undefined, hashAuthen: string) => {
+  //     var publicKey = `;
+  //     -----BEGIN PUBLIC KEY-----
+  //     MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDlOJu6TyygqxfWT7eLtGDwajtN
+  //     FOb9I5XRb6khyfD1Yt3YiCgQWMNW649887VGJiGr/L5i2osbl8C9+WJTeucF+S76
+  //     xFxdU6jE0NQ+Z+zEdhUTooNRaY5nZiu5PgDB0ED/ZKBUSLKL7eibMxZtMlUDHjm4
+  //     gwQco1KRMDSmXSMkDwIDAQAB
+  //     -----END PUBLIC KEY-----`;
 
-    privateKey = `
-    -----BEGIN RSA PRIVATE KEY-----
-    MIICXQIBAAKBgQDlOJu6TyygqxfWT7eLtGDwajtNFOb9I5XRb6khyfD1Yt3YiCgQ
-    WMNW649887VGJiGr/L5i2osbl8C9+WJTeucF+S76xFxdU6jE0NQ+Z+zEdhUTooNR
-    aY5nZiu5PgDB0ED/ZKBUSLKL7eibMxZtMlUDHjm4gwQco1KRMDSmXSMkDwIDAQAB
-    AoGAfY9LpnuWK5Bs50UVep5c93SJdUi82u7yMx4iHFMc/Z2hfenfYEzu+57fI4fv
-    xTQ//5DbzRR/XKb8ulNv6+CHyPF31xk7YOBfkGI8qjLoq06V+FyBfDSwL8KbLyeH
-    m7KUZnLNQbk8yGLzB3iYKkRHlmUanQGaNMIJziWOkN+N9dECQQD0ONYRNZeuM8zd
-    8XJTSdcIX4a3gy3GGCJxOzv16XHxD03GW6UNLmfPwenKu+cdrQeaqEixrCejXdAF
-    z/7+BSMpAkEA8EaSOeP5Xr3ZrbiKzi6TGMwHMvC7HdJxaBJbVRfApFrE0/mPwmP5
-    rN7QwjrMY+0+AbXcm8mRQyQ1+IGEembsdwJBAN6az8Rv7QnD/YBvi52POIlRSSIM
-    V7SwWvSK4WSMnGb1ZBbhgdg57DXaspcwHsFV7hByQ5BvMtIduHcT14ECfcECQATe
-    aTgjFnqE/lQ22Rk0eGaYO80cc643BXVGafNfd9fcvwBMnk0iGX0XRsOozVt5Azil
-    psLBYuApa66NcVHJpCECQQDTjI2AQhFc1yRnCU/YgDnSpJVm1nASoRUnU8Jfm3Oz
-    uku7JUXcVpt08DFSceCEX9unCuMcT72rAQlLpdZir876
-    -----END RSA PRIVATE KEY-----`;
-    var encrypt = new JSEncrypt();
-    // encrypt.setPublicKey(publicKey);
-    // Assign our encryptor to utilize the public key.
-    encrypt.setPrivateKey(privateKey);
+  //     privateKey = `
+  //     -----BEGIN RSA PRIVATE KEY-----
+  //     MIICXQIBAAKBgQDlOJu6TyygqxfWT7eLtGDwajtNFOb9I5XRb6khyfD1Yt3YiCgQ
+  //     WMNW649887VGJiGr/L5i2osbl8C9+WJTeucF+S76xFxdU6jE0NQ+Z+zEdhUTooNR
+  //     aY5nZiu5PgDB0ED/ZKBUSLKL7eibMxZtMlUDHjm4gwQco1KRMDSmXSMkDwIDAQAB
+  //     AoGAfY9LpnuWK5Bs50UVep5c93SJdUi82u7yMx4iHFMc/Z2hfenfYEzu+57fI4fv
+  //     xTQ//5DbzRR/XKb8ulNv6+CHyPF31xk7YOBfkGI8qjLoq06V+FyBfDSwL8KbLyeH
+  //     m7KUZnLNQbk8yGLzB3iYKkRHlmUanQGaNMIJziWOkN+N9dECQQD0ONYRNZeuM8zd
+  //     8XJTSdcIX4a3gy3GGCJxOzv16XHxD03GW6UNLmfPwenKu+cdrQeaqEixrCejXdAF
+  //     z/7+BSMpAkEA8EaSOeP5Xr3ZrbiKzi6TGMwHMvC7HdJxaBJbVRfApFrE0/mPwmP5
+  //     rN7QwjrMY+0+AbXcm8mRQyQ1+IGEembsdwJBAN6az8Rv7QnD/YBvi52POIlRSSIM
+  //     V7SwWvSK4WSMnGb1ZBbhgdg57DXaspcwHsFV7hByQ5BvMtIduHcT14ECfcECQATe
+  //     aTgjFnqE/lQ22Rk0eGaYO80cc643BXVGafNfd9fcvwBMnk0iGX0XRsOozVt5Azil
+  //     psLBYuApa66NcVHJpCECQQDTjI2AQhFc1yRnCU/YgDnSpJVm1nASoRUnU8Jfm3Oz
+  //     uku7JUXcVpt08DFSceCEX9unCuMcT72rAQlLpdZir876
+  //     -----END RSA PRIVATE KEY-----`;
+  //     var encrypt = new JSEncrypt();
+  //     // encrypt.setPublicKey(publicKey);
+  //     // Assign our encryptor to utilize the public key.
+  //     encrypt.setPrivateKey(privateKey);
 
-    // Perform our encryption based on our public key - only private key can read it!
-    var encrypted = encrypt.encrypt(hashAuthen);
+  //     // Perform our encryption based on our public key - only private key can read it!
+  //     var encrypted = encrypt.encrypt(hashAuthen);
 
-    var decrypt = new JSEncrypt();
-    // decrypt.setPrivateKey(privateKey);
-    decrypt.setPublicKey(publicKey);
-    var uncrypted;
+  //     var decrypt = new JSEncrypt();
+  //     // decrypt.setPrivateKey(privateKey);
+  //     decrypt.setPublicKey(publicKey);
+  //     var uncrypted;
 
-    // if (encrypted !== false) {
-    //   uncrypted = decrypt.decrypt(encrypted);
-    //   console.log("Decrypted:", uncrypted);
-    // } else {
-    //   console.error("Encryption failed");
-    // }
-    // return encrypted;
+  //     // if (encrypted !== false) {
+  //     //   uncrypted = decrypt.decrypt(encrypted);
+  //     //   console.log("Decrypted:", uncrypted);
+  //     // } else {
+  //     //   console.error("Encryption failed");
+  //     // }
+  //     // return encrypted;
 
-    var encrypt = new JSEncrypt();
-    encrypt.setPublicKey(publicKey);
+  //     var encrypt = new JSEncrypt();
+  //     encrypt.setPublicKey(publicKey);
 
-    // Perform encryption using the public key
-    var encrypted = encrypt.encrypt(hashAuthen);
+  //     // Perform encryption using the public key
+  //     var encrypted = encrypt.encrypt(hashAuthen);
 
-    var decrypt = new JSEncrypt();
-    decrypt.setPrivateKey(privateKey);
-    var uncrypted;
+  //     var decrypt = new JSEncrypt();
+  //     decrypt.setPrivateKey(privateKey);
+  //     var uncrypted;
 
-    if (encrypted !== false) {
-      // Perform decryption using the private key
-      uncrypted = decrypt.decrypt(encrypted);
-      console.log("Decrypted:", uncrypted);
-    } else {
-      console.error("Encryption failed");
-    }
+  //     if (encrypted !== false) {
+  //       // Perform decryption using the private key
+  //       uncrypted = decrypt.decrypt(encrypted);
+  //       console.log("Decrypted:", uncrypted);
+  //     } else {
+  //       console.error("Encryption failed");
+  //     }
 
-    return encrypted;
-  };
+  //     return encrypted;
+  //   };
 
-  const createSignature = (privateKey: string, data: string): string => {
-    const encrypt = new JSEncrypt();
-    encrypt.setPrivateKey(privateKey);
+  //   const createSignature = (privateKey: string, data: string): string => {
+  //     const encrypt = new JSEncrypt();
+  //     encrypt.setPrivateKey(privateKey);
 
-    // Assume "sha256" as the hash algorithm, you can change it based on your needs
-    const hashAlgorithm = "sha256";
+  //     // Assume "sha256" as the hash algorithm, you can change it based on your needs
+  //     const hashAlgorithm = "sha512";
 
-    // Use a lambda function for the hash method
-    const digestMethod = (str: string) => {
-      // You can use a library like crypto-js for hashing
-      // For simplicity, let's assume data is ASCII encoded
-      const hash = CryptoJS.SHA256(str).toString(CryptoJS.enc.Base64);
-      console.log(hash);
-      return hash;
+  //     // Use a lambda function for the hash method
+  //     const digestMethod = (str: string) => {
+  //       // For simplicity, let's assume data is ASCII encoded
+  //       const hash = CryptoJS.SHA512(str).toString(CryptoJS.enc.Base64);
+  //       console.log(hash);
+  //       return hash;
+  //     }; // You can use a library like crypto-js for hashing
+
+  //     // Provide all three parameters to the sign method
+  //     const signature = encrypt.sign(data, digestMethod, hashAlgorithm);
+  //     // return signature;
+  //     return signature ? signature : "";
+  //   };
+
+  //   const privateKey = `
+  // -----BEGIN RSA PRIVATE KEY-----
+  // MIICXQIBAAKBgQDlOJu6TyygqxfWT7eLtGDwajtNFOb9I5XRb6khyfD1Yt3YiCgQ
+  // WMNW649887VGJiGr/L5i2osbl8C9+WJTeucF+S76xFxdU6jE0NQ+Z+zEdhUTooNR
+  // aY5nZiu5PgDB0ED/ZKBUSLKL7eibMxZtMlUDHjm4gwQco1KRMDSmXSMkDwIDAQAB
+  // AoGAfY9LpnuWK5Bs50UVep5c93SJdUi82u7yMx4iHFMc/Z2hfenfYEzu+57fI4fv
+  // xTQ//5DbzRR/XKb8ulNv6+CHyPF31xk7YOBfkGI8qjLoq06V+FyBfDSwL8KbLyeH
+  // m7KUZnLNQbk8yGLzB3iYKkRHlmUanQGaNMIJziWOkN+N9dECQQD0ONYRNZeuM8zd
+  // 8XJTSdcIX4a3gy3GGCJxOzv16XHxD03GW6UNLmfPwenKu+cdrQeaqEixrCejXdAF
+  // z/7+BSMpAkEA8EaSOeP5Xr3ZrbiKzi6TGMwHMvC7HdJxaBJbVRfApFrE0/mPwmP5
+  // rN7QwjrMY+0+AbXcm8mRQyQ1+IGEembsdwJBAN6az8Rv7QnD/YBvi52POIlRSSIM
+  // V7SwWvSK4WSMnGb1ZBbhgdg57DXaspcwHsFV7hByQ5BvMtIduHcT14ECfcECQATe
+  // aTgjFnqE/lQ22Rk0eGaYO80cc643BXVGafNfd9fcvwBMnk0iGX0XRsOozVt5Azil
+  // psLBYuApa66NcVHJpCECQQDTjI2AQhFc1yRnCU/YgDnSpJVm1nASoRUnU8Jfm3Oz
+  // uku7JUXcVpt08DFSceCEX9unCuMcT72rAQlLpdZir876
+  // -----END RSA PRIVATE KEY-----`;
+
+  //   const publicKey = `
+  // -----BEGIN PUBLIC KEY-----
+  // MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDlOJu6TyygqxfWT7eLtGDwajtN
+  // FOb9I5XRb6khyfD1Yt3YiCgQWMNW649887VGJiGr/L5i2osbl8C9+WJTeucF+S76
+  // xFxdU6jE0NQ+Z+zEdhUTooNRaY5nZiu5PgDB0ED/ZKBUSLKL7eibMxZtMlUDHjm4
+  // gwQco1KRMDSmXSMkDwIDAQAB
+  // -----END PUBLIC KEY-----`;
+
+    const hashSHA512 = (
+      cadidateID: number | undefined,
+      sudantID: string | undefined
+    ) => {
+      const candidat = candidats.filter((c) => c.ID === cadidateID);
+      let generated_signature = CryptoJS.SHA512(
+        sudantID + candidat[0].NameCandidat
+      ).toString(CryptoJS.enc.Hex);
+
+      return generated_signature;
     };
+  //   const hashSHA512A = (
+  //    str: string
+  //   ) => {
+  //     console.log(str);
+  //     let generated_signature = CryptoJS.SHA512(str).toString(CryptoJS.enc.Hex);
 
-    // Provide all three parameters to the sign method
-    const signature = encrypt.sign(data, digestMethod, hashAlgorithm);
-    // return signature;
-    return signature ? signature : "";
-  };
-
-  const privateKey = `
------BEGIN RSA PRIVATE KEY-----
-MIICXQIBAAKBgQDlOJu6TyygqxfWT7eLtGDwajtNFOb9I5XRb6khyfD1Yt3YiCgQ
-WMNW649887VGJiGr/L5i2osbl8C9+WJTeucF+S76xFxdU6jE0NQ+Z+zEdhUTooNR
-aY5nZiu5PgDB0ED/ZKBUSLKL7eibMxZtMlUDHjm4gwQco1KRMDSmXSMkDwIDAQAB
-AoGAfY9LpnuWK5Bs50UVep5c93SJdUi82u7yMx4iHFMc/Z2hfenfYEzu+57fI4fv
-xTQ//5DbzRR/XKb8ulNv6+CHyPF31xk7YOBfkGI8qjLoq06V+FyBfDSwL8KbLyeH
-m7KUZnLNQbk8yGLzB3iYKkRHlmUanQGaNMIJziWOkN+N9dECQQD0ONYRNZeuM8zd
-8XJTSdcIX4a3gy3GGCJxOzv16XHxD03GW6UNLmfPwenKu+cdrQeaqEixrCejXdAF
-z/7+BSMpAkEA8EaSOeP5Xr3ZrbiKzi6TGMwHMvC7HdJxaBJbVRfApFrE0/mPwmP5
-rN7QwjrMY+0+AbXcm8mRQyQ1+IGEembsdwJBAN6az8Rv7QnD/YBvi52POIlRSSIM
-V7SwWvSK4WSMnGb1ZBbhgdg57DXaspcwHsFV7hByQ5BvMtIduHcT14ECfcECQATe
-aTgjFnqE/lQ22Rk0eGaYO80cc643BXVGafNfd9fcvwBMnk0iGX0XRsOozVt5Azil
-psLBYuApa66NcVHJpCECQQDTjI2AQhFc1yRnCU/YgDnSpJVm1nASoRUnU8Jfm3Oz
-uku7JUXcVpt08DFSceCEX9unCuMcT72rAQlLpdZir876
------END RSA PRIVATE KEY-----`;
-
-  const publicKey = `
------BEGIN PUBLIC KEY-----
-MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDlOJu6TyygqxfWT7eLtGDwajtN
-FOb9I5XRb6khyfD1Yt3YiCgQWMNW649887VGJiGr/L5i2osbl8C9+WJTeucF+S76
-xFxdU6jE0NQ+Z+zEdhUTooNRaY5nZiu5PgDB0ED/ZKBUSLKL7eibMxZtMlUDHjm4
-gwQco1KRMDSmXSMkDwIDAQAB
------END PUBLIC KEY-----`;
-
-
-  const hashSHA256 = (
-    cadidateID: number | undefined,
-    sudantID: string | undefined
-  ) => {
-    const candidat = candidats.filter((c) => c.ID === cadidateID);
-    console.log(sudantID + candidat[0].NameCandidat);
-    let generated_signature = CryptoJS.SHA256(
-      sudantID + candidat[0].NameCandidat
-    ).toString(CryptoJS.enc.Hex);
-
-    return generated_signature;
-  };
+  //     return generated_signature;
+  //   };
 
   async function generateKeysForVoters() {
     const voters = [

@@ -35,7 +35,7 @@ func ConnectDB() (*gorm.DB, error) {
 		{
 			StudentID:  "B6400001",
 			StudentName: "s1",
-			PublishKey: "",
+			PublishKey: "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCRl3fhbfVHn8+45qhNaVV3ApaLK6iQZ+mpwY1Cme7iSXYntbQCvhpXxILDnYEGGJu1Yndtgn+HQMnJH3lAeb1vDuOlVJF34wkQcwqAVuxE0QS92mJvTIVhU89TO+mFMzYV5Vklj2Smg6M/fQDIvLBIUJGQTRT7IK5bYSAo+RqXwIDAQAB",
 		},
 		{
 			StudentID:  "B6400002",
