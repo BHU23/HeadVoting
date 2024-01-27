@@ -13,9 +13,7 @@ import { CandidatsInterface } from "../../../interfaces/ICandidat";
 import { VotersInterface } from "../../../interfaces/IVoter";
 import TextArea from "rc-textarea";
 import * as CryptoJS from "crypto-js";
-import { JSEncrypt } from "jsencrypt";
 import * as forge from "node-forge";
-// const forge = require("node-forge");
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 const { Option } = Select; // Move the Select import here
@@ -26,29 +24,17 @@ export default function CreateVoting() {
   const [dataVoters, setDataVoters] = useState<VotersInterface[]>([]);
   const [dataVoting, setDataVoting] = useState<VotingsInterface[]>([]);
   const navigate = useNavigate();
-  const privateKey1 = `
------BEGIN RSA PRIVATE KEY-----
-MIICXQIBAAKBgQCRl3fhbfVHn8+45qhNaVV3ApaLK6iQZ+mpwY1Cme7iSXYntbQC
-vhpXxILDnYEGGJu1Yndtgn+HQMnJH3lAeb1vDuOlVJF34wkQcwqAVuxE0QS92mJv
-TIVhU89TO+mFMzYV5Vklj2Smg6M/fQDIvLBIUJGRQTRT7IK5bYSAo+RqXwIDAQAB
-AoGAPABBfp0zZcY99ETS/bw4ZaiiZE6k1IaOrNBAqD8KTSXbVPg0bKDt+FfbUETc
-BKglm7Yt4+rRJeuUfZfD/8dsQvYAT5ekE4ZNKOSRITptUkETHSYgyNBWIKfEW4Lb
-kJ0QxQvvEdsESAoYZSytKeEMvOGc1eBkBoXy/U7PJu+wIVkCQQDTvCr4wVsj+O60
-12YZcu6KYYu+LdMX+P0ZOxf37Z0QTkhEtyVHUtroXCj2in1cY5FeeXr+tEkNckyF
-NyLTMVk9AkEAsAdg9QrqCxAtZ2WdSqcyN3WONW/7ocIYhFlDpHG1WHRRe7REkAI4
-z+z3LgRD1FPS82ef2E5UWPgv2ZjTZ6GzywJBAMWizWWWbjE8qevpZyb4DcrjVGI3
-OeQViIIlk7DbfZD70R866LQTlbvwUlgWWv+C/Oz3baQTumCvwNdT6NDDLm0CQGQs
-Hsnz5xJap2vy0Jr+IL6cwEu6qVj5KpiOb8byCoAG2aPrByVojkoNEPD37l2zQhXP
-/4/Jq4hh3GEY7h1IURcCQQDRQL4B1/1zxw5kVRtaIiERmq+PsvCOuLGMQJF7rxp1
-0L1SPSOE5ytshYBSF231hNameDGVzOhTo3FBFG3sNfso
------END RSA PRIVATE KEY-----`;
 
   const onFinish = async (values: VotingsInterface) => {
     const candidat = candidats.filter((c) => c.ID === values.CandidatID);
     const data = String(values.StudenID) + String(candidat[0].NameCandidat);
     console.log(data);
-    
-    const privateKey = forge.pki.privateKeyFromPem(privateKey1);
+    const privateKey = `
+-----BEGIN RSA PRIVATE KEY-----
+${values.PrivateKey}
+-----END RSA PRIVATE KEY-----`;
+
+    const privateKeyPem = forge.pki.privateKeyFromPem(privateKey);
 
     // Create a SHA-512 hash of the data
     const md = forge.md.sha512.create();
@@ -58,17 +44,13 @@ Hsnz5xJap2vy0Jr+IL6cwEu6qVj5KpiOb8byCoAG2aPrByVojkoNEPD37l2zQhXP
     console.log("Hash:", hashH);
 
     // Sign the hash with RSA PKCS#1 v1.5 padding
-    const signature = privateKey.sign(md);
+    const signature = privateKeyPem.sign(md);
 
     console.log("Signature:", forge.util.encode64(signature));
+
     // Now you can use the 'signature' variable as needed
     console.log("Signature:", signature);
     values.Signeture = signature ? forge.util.encode64(signature) : "";
-
-    values.HashAuthen = hashSHA512(values.CandidatID, values.StudenID);
-    console.log("valuesHash");
-    console.log(values.HashAuthen);
-    console.log(hashH);
 
     let res = await CreateVotings(values);
     if (res.status) {
@@ -92,6 +74,8 @@ Hsnz5xJap2vy0Jr+IL6cwEu6qVj5KpiOb8byCoAG2aPrByVojkoNEPD37l2zQhXP
       setCandidats(res);
     }
   };
+
+  //// for create signature by JSEncrypt but 
   //  const encrypt = new JSEncrypt();
   //  encrypt.setPrivateKey(privateKey1);
   // const onFinish = async (values: VotingsInterface) => {
@@ -285,17 +269,17 @@ Hsnz5xJap2vy0Jr+IL6cwEu6qVj5KpiOb8byCoAG2aPrByVojkoNEPD37l2zQhXP
   // gwQco1KRMDSmXSMkDwIDAQAB
   // -----END PUBLIC KEY-----`;
 
-    const hashSHA512 = (
-      cadidateID: number | undefined,
-      sudantID: string | undefined
-    ) => {
-      const candidat = candidats.filter((c) => c.ID === cadidateID);
-      let generated_signature = CryptoJS.SHA512(
-        sudantID + candidat[0].NameCandidat
-      ).toString(CryptoJS.enc.Hex);
+  const hashSHA512 = (
+    cadidateID: number | undefined,
+    sudantID: string | undefined
+  ) => {
+    const candidat = candidats.filter((c) => c.ID === cadidateID);
+    let generated_signature = CryptoJS.SHA512(
+      sudantID + candidat[0].NameCandidat
+    ).toString(CryptoJS.enc.Hex);
 
-      return generated_signature;
-    };
+    return generated_signature;
+  };
   //   const hashSHA512A = (
   //    str: string
   //   ) => {
@@ -304,87 +288,6 @@ Hsnz5xJap2vy0Jr+IL6cwEu6qVj5KpiOb8byCoAG2aPrByVojkoNEPD37l2zQhXP
 
   //     return generated_signature;
   //   };
-
-  async function generateKeysForVoters() {
-    const voters = [
-      {
-        StudentID: "B6400001",
-        StudentName: "s1",
-        PublishKey: "",
-        PrivateKey: "",
-      },
-      {
-        StudentID: "B6400002",
-        StudentName: "s2",
-        PublishKey: "",
-        PrivateKey: "",
-      },
-      {
-        StudentID: "B6400003",
-        StudentName: "s3",
-        PublishKey: "",
-        PrivateKey: "",
-      },
-      {
-        StudentID: "B6400004",
-        StudentName: "s4",
-        PublishKey: "",
-        PrivateKey: "",
-      },
-      {
-        StudentID: "B6400005",
-        StudentName: "s5",
-        PublishKey: "",
-        PrivateKey: "",
-      },
-      {
-        StudentID: "B6400006",
-        StudentName: "s6",
-        PublishKey: "",
-        PrivateKey: "",
-      },
-      {
-        StudentID: "B6400007",
-        StudentName: "s7",
-        PublishKey: "",
-        PrivateKey: "",
-      },
-      {
-        StudentID: "B6400008",
-        StudentName: "s8",
-        PublishKey: "",
-        PrivateKey: "",
-      },
-      {
-        StudentID: "B6400009",
-        StudentName: "s9",
-        PublishKey: "",
-        PrivateKey: "",
-      },
-      {
-        StudentID: "B6400010",
-        StudentName: "s10",
-        PublishKey: "",
-        PrivateKey: "",
-      },
-    ];
-
-    const updatedVoters = [];
-
-    for (const voter of voters) {
-      const encrypt = new JSEncrypt();
-
-      // Generate key pair
-      const privateKey = encrypt.getPrivateKey();
-      const publicKey = encrypt.getPublicKey();
-
-      voter.PrivateKey = privateKey;
-      voter.PublishKey = publicKey;
-      updatedVoters.push(voter);
-    }
-
-    console.log(updatedVoters);
-  }
 
   return (
     <div
@@ -440,7 +343,7 @@ Hsnz5xJap2vy0Jr+IL6cwEu6qVj5KpiOb8byCoAG2aPrByVojkoNEPD37l2zQhXP
             label="PrivateKey"
             rules={[{ required: true, message: "กรุณากรอก PrivateKey !" }]}
           >
-            <Input />
+            <TextArea />
           </Form.Item>
           <Button
             type="primary"
