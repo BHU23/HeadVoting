@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Form, Input, Button, Card, Select } from "antd"; // Consolidate imports
+import { Form, Input, Button, Card, Select, Popconfirm } from "antd"; // Consolidate imports
 import { VotingsInterface } from "../../../interfaces/IVoting";
 import { useNavigate } from "react-router-dom";
 import {
@@ -56,8 +56,12 @@ ${values.PrivateKey}
     if (res.status) {
       toast.success("บันทึกข้อมูลสำเร็จ");
 
-      setTimeout(function () {}, 2000);
-
+      setTimeout(function () {
+        if (dataVoting.length === 10) {
+          navigate(`/VotingResults`);
+        }
+      }, 2000);
+      
       form.setFieldsValue({
         StudenID: undefined,
         CandidatID: undefined,
@@ -289,6 +293,20 @@ ${values.PrivateKey}
   //     return generated_signature;
   //   };
 
+  const [showPopconfirm, setShowPopconfirm] = useState(false);
+
+  const handleButtonClick = () => {
+    if (dataVoting.length === 10) {
+      navigate(`/VotingResults`)
+    } else {
+      setShowPopconfirm(true);
+    }
+  };
+
+  const handlePopconfirmCancel = () => {
+    setShowPopconfirm(false);
+  };
+
   return (
     <div
       style={{
@@ -343,7 +361,7 @@ ${values.PrivateKey}
             label="PrivateKey"
             rules={[{ required: true, message: "กรุณากรอก PrivateKey !" }]}
           >
-            <TextArea />
+            <TextArea style={{ width: '100%', resize: 'none'}} autoSize={{maxRows:4, minRows:4}} />
           </Form.Item>
           <Button
             type="primary"
@@ -408,25 +426,36 @@ ${values.PrivateKey}
         </div>
 
         <div>
-          <Button
+          <Button 
             style={{
-              background: "#21A6A6",
-              color: "#ffff",
-              fontWeight: "500",
-              fontSize: "14px",
-              padding: "10px 20px",
-              textAlign: "center",
-              justifyContent: "center",
-              height: "auto",
-              alignItems: "center",
-              width: "100%",
-            }}
-            type="link"
-            className="VotingResultsButton"
-            onClick={() => navigate(`/VotingResults`)}
+              background:'#21A6A6', 
+              color:'#ffff', 
+              fontWeight:'500',
+              fontSize:'14px',
+              padding:'10px 20px',
+              textAlign:'center',
+              justifyContent:'center',
+              height:'auto',
+              alignItems:'center',
+              width:'100%'
+              }}
+              type="link"
+              className="VotingResultsButton"
+              onClick={handleButtonClick}
+
           >
             ผลการเลือกตั้ง
           </Button>
+
+          <Popconfirm
+            title="Error to Voting Results"
+            description="Please check that everyone has voted?"
+            visible={showPopconfirm}
+            onCancel={handlePopconfirmCancel}
+            okButtonProps={{ style: { display: 'none' } }}
+            cancelButtonProps={{ style: { display: '' } }}
+          >
+          </Popconfirm>
         </div>
       </Card>
     </div>
