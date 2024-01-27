@@ -8,6 +8,7 @@ import {
   GetVoters,
   GetVotingList,
 } from "../../../services/https";
+import "./style.css";
 import { CandidatsInterface } from "../../../interfaces/ICandidat";
 import { VotersInterface } from "../../../interfaces/IVoter";
 import TextArea from "rc-textarea";
