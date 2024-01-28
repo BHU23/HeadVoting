@@ -14,7 +14,7 @@ cd frontend
 
 npm install --save react-router-dom@6.x
 
-#2.install ant-design 
+# 2.install ant-design 
 
 cd frontend
 
