@@ -11,7 +11,7 @@ func DB() *gorm.DB {
 	return db
 }
 
-func ConnectDB() (*gorm.DB, error) {
+func ConnectDB() () {
 	var err error
 	var database *gorm.DB
 	database, err = gorm.Open(sqlite.Open("cs-66.db"), &gorm.Config{})
@@ -31,100 +31,120 @@ func ConnectDB() (*gorm.DB, error) {
 	database.Where(Candidat{NameCandidat: "C"}).FirstOrCreate(&Candidat{NameCandidat: "C"})
 
 	// Voter Data (ex)
-	voter := []Voter{
+	Voter := []Voter{
 		{
 			StudentID:   "B6400001",
 			StudentName: "s1",
-			PublicKey: `MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCRl3fhbfVHn8+45qhNaVV3ApaL
-K6iQZ+mpwY1Cme7iSXYntbQCvhpXxILDnYEGGJu1Yndtgn+HQMnJH3lAeb1vDuOl
-VJF34wkQcwqAVuxE0QS92mJvTIVhU89TO+mFMzYV5Vklj2Smg6M/fQDIvLBIUJGR
-QTRT7IK5bYSAo+RqXwIDAQAB`,
+			PublicKey: `MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAox9f7etWRQWeYcaTkBbK
+			BlE4hHG0ohPqQKTqQk7L3SdePmvbYMiW707KBjWYkuhX841faoXChkOrrmraqRVS
+			n8W9Pap4Ukokfnp6KyQ6azW73DfGWiusVTmW893ZmmLR1U8Uve/YKyqkEmJ4pni3
+			/Go5BbOwgiImp/0Y5PhXY4d3ic2EqtNyb0+t3VE9IoCmT32u10az9FPDdXn1QtnQ
+			IBEhMbKvxuv9b8MQ4nNvkMRP56HwmSNbw76N1FAyiSQLrolMKJ/n+0ZwCClrwqAN
+			fzvwNRseR5HZKkgmbxYYnqNfr5Ri7wmXdrgI0rxcjuJszUW19geHbCj8CKTofUdx
+			PQIDAQAB`,
 		},
 		{
 			StudentID:   "B6400002",
 			StudentName: "s2",
-			PublicKey: `MIGeMA0GCSqGSIb3DQEBAQUAA4GMADCBiAKBgGWLIXVKNsaqTTmx1w9re3TuzlIb
-MR5VM/icmZcl6Wjd+RIEko5QvzKp5Hv5pJEknjEDR9SQAHFvWIUGf1GCk596yCic
-Rxgxrkmxm21as4bBdnUx40IjWsuxnVNRvzuoGQG7h5I3qJONiXnUqe7bmk/2sKoc
-xbM7pxscFN4tC1dlAgMBAAE=
-`,
+			PublicKey: `MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAkgMsebUwlpppclvHQhab
+			ujauI4OjHIFspE7Dh56KytO1F5vLgyTq+XQcgnpCspRrIeoeA2Krr5PFgA4RyhfT
+			7SebRF2VOS789v6h34eAZAM2Twfd3gqTB9zsc9TzvqKQmJuONjxi6Ck/90V6m1k0
+			uLtJgeHqwpOyH6juMdInKOx0rV1oc1gSaFvEQVHW1JtqrkuncoTeD86tJnPDb55h
+			QxZNpCm9D3OC9dckdQbxMYY1B2DwqLFq9akNUaWloHzHA4KeLpkJqP1kx0pjP6DJ
+			AIHDSJh4BaBffOfPJSz1P+NkmU/0i+8/kqENkDNjVYYNDAzUmC1njAhfz226xEAJ
+			ZQIDAQAB`,
 		},
 		{
 			StudentID:   "B6400003",
 			StudentName: "s3",
-			PublicKey:  `MIGeMA0GCSqGSIb3DQEBAQUAA4GMADCBiAKBgHcowISrUCIO28fKp1naWlb4MKoP
-GmqwSTFZ/0klQKMzgF6qiVNBFdGuuFFGHmazvJaZvDtyNwfPyG2alZG7pu6bHEu4
-1zroJ3+BeeMGisKWb4bh0L1jfK+6MQQ63ybkwgrvEiLAlOdogqe2NmzXKpSPc3q8
-G0RYNGzUUarYfO6LAgMBAAE=
-`,
+			PublicKey:  `MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAm/t/H0hXXm8CaajKc0wm
+			FIKkV9d8UY7ba6aLUTB/li0L71SWFxBEWYM6awcyUU+2QwvEl55bw/9kRhzwnC8/
+			36Y+cQtFO8f5AR4BMgFnQkhM04lWDaP+oGQ+SLQyOK49jGNMjsJTYxlKCSUX8Ih4
+			UkxmdzWB/C+QJMiBkZOsqGwGubkjcXaqSUeMDiQ90Xkt7K44/78Hg3FqxBK6ppGp
+			jIKzgcczp/aYU9MluzxcO8gccCARnfbzcpeAVOts4KCmlZTBIwZApXiXP6bHZ9Ao
+			QT5vbGPaPZvauBwvU3rhNsI+mpuB/GQOGf7hmIvi3axffq5N9iqPh+vG6AqMvT18
+			LQIDAQAB`,
 		},
 		{
 			StudentID:   "B6400004",
 			StudentName: "s4",
-			PublicKey:  `MIGeMA0GCSqGSIb3DQEBAQUAA4GMADCBiAKBgE7d/oZ9nhOvmup3In9ouWes64Z0
-iNrwYx839I25NbyMWrm7t8TpgJnrXzD5gLO9tlSUng0iCEZ8PRDzULoCEg01a32d
-RNdgc6e18umATEfoqBBRqQCMJYsBjuTkrV8Q3HIPXxwTVaFkQLYAwpeKvGlywIQp
-oViTxUAD5bYZlXqzAgMBAAE=
-`,
+			PublicKey:  `MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAqAPl9AZR6nH9qu3aZGwl
+			UiqTEhC2OqSUAdKOrJAxGaFMu14i2CwaTgP1JcbpkRkUSUlKPSBzQkIu9smzdckU
+			ci61e7deYPY7cKMQaxmYMixA2p+cWpdmzRLiv4NmLB7Zv8t6hM4G8FfsEfnbfRI/
+			Hc4vCz2rZZX/v/rTfKihGwYXo40Hbfi8yozeZ7Di+WhtJwrFNBob9doHNrMe4KFd
+			tmBRXsMN7h+38b0Bu5bDF5Gy0/WJcBLI3qYp9PrRdFecwDz/pZN2zbqDEcdDpi8s
+			JsXyNZiu1mvMxFpY/PmpfxdKw8jpQQexSWAcylw5LLiorTNTi+uBJ3/cPNqS5U0n
+			7QIDAQAB`,
 		},
 		{
 			StudentID:   "B6400005",
 			StudentName: "s5",
-			PublicKey:  `MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDbL6emtqWdC7JtZ1Qj2yIAaUOU
-7jDvgYUvwG1EeIIk0on03+E7selE+u4af8XzlD3hzbUO11F9pblsQbquqZPxdpg3
-BczDbfvw2GaZsipjjIOV1mCjjummzaxDjj2VLTrAo5r0JH4/LcMRFlzhhZ3a0Rxo
-tq7xuITIMPVBaTANaQIDAQAB
-`,
+			PublicKey:  `MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwAeiav/3LMuakuOjTd3G
+			UinWIrEdW6JTb0/ansTA8Soq8E/zJFUySjvo9ba0OUHIkDCt6rIY2+0s1XZrNpe3
+			z+1nl7zMEi3H4wREEsGNlhr2n/IlsHWauQpJchCkeWRWe4+HIpm3PQg7N9oV7/94
+			7z4EQ4r642owE4R/3TgTz/xP0hb8sSn4hReQjI1jaJs9xKUQQDpP6wML5JKncc6u
+			T6+tDrFnbHTtu4UsoGHPXyDYuGeNuB20hX8N0ZCEjh45AZsdc1AVNpiolqxV9HKO
+			4MQA/4yUmITQ0zHNhr3eJA23gGksjLkxqY4zwVCISRyb46OxdDjVp0Wx4ceN7wRj
+			TwIDAQAB`,
 		},
 		{
 			StudentID:   "B6400006",
 			StudentName: "s6",
-			PublicKey:  `MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDa7klMlKEa//gL1ly+jD2iV/mj
-2gVbjzJsWLK2jQRhUUi0mVcZGbRoJmoZUsQEXIkXCUUzemsSaOSEIcFvl2ZN54Nm
-gvV/JNKxohdoRscjqAQF9VCrVHJXlLzu/0S9udqq6JJnF02T6vGlbE3oI/qBIXS+
-lLXGENakHECtfTQW/QIDAQAB
-`,
+			PublicKey:  `MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAj3hahJloLZ5ZbIiv8Kxv
+			b8wrIaOIumFCEr4oUhS22z3iJauP+3cdt74RI2EQ6ENv8IX3kWN6E9I86klPYaRb
+			YVEoDFcWftu/JH2qbQK/LTRCZ5VRaAmlgVk+DIkC2UdhGVt2GgVUSjxORUb0H3B7
+			fcRb2wV+awM2WtZfriRpz4z2kXeQAdfpJYP6b38dN8mUgFi3xL++Mm+/4b6xYWXK
+			5vAvuF/K+NvSwIEOx9LtYT2lOg3285dhLzAWg64VziW9ol/Q8FDXUaG5patWm/0k
+			SDehhdEQYMwL0EEU0qOGre7QOz3e0PK1H2PCbMHqsjZAw7QjyYqOxvWRWo2SohrA
+			2QIDAQAB`,
 		},
 		{
 			StudentID:   "B6400007",
 			StudentName: "s7",
-			PublicKey:  `MIGeMA0GCSqGSIb3DQEBAQUAA4GMADCBiAKBgGq14iacCooDuS7fxApO2vBrTFAS
-/C64Gnego/QbVo+Z8AbvCUBa1sncdazK/L55coANiATKhF/Zn0+5ywCsQhSY8ZAp
-3S2nR1QBra/DltojAVja6bBOGA0ES33HSvSqFG6XZ8oVB5medkMKLoK8F/NC5Ccu
-RyaqDj7eau1xJGLtAgMBAAE=
-`,
+			PublicKey:  `MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAxTx8aPJOZVa/NpEj2sSK
+			YrKcrS7UfuTvW+haK9Gcn0fJC3J6fJ9NXAK8wJD+VPL+mv1F5ElRrkDUjUPN2AvM
+			NRyp6btXf8Nnmr8dD8GitdIt+8fLhRRZwq5xypIi2ngwBhOP7Sv8U6gwOCbgumFV
+			wv4Go07K2Fnr4VectmoNhKmtItZRxov3FE7UmGlhFav5xDMj5q2eEc1HLXBBwSHw
+			BOI7Wuz3eMtJHRXYws+rX0wHitGMWpgpLYIcoOE1zx2YWaLsEbDxAmBOs5tiKWTa
+			iZElyjh9cCYCQdSpaZUU35xoR7ZH5tFZGXZVNiVfhidecJ55SJLj+5XLx+dk5Jd7
+			pQIDAQAB`,
 		},
 		{
 			StudentID:   "B6400008",
 			StudentName: "s8",
-			PublicKey:  `MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDDA4sx4VWpY8DZWmGlwgTiA65q
-h9D135jQG5K9rTOgzjK8BcT/+kdgbK4rEXH3L97Xf/oxwuAKzwvXSAdTAGEjFucD
-rGMM+jBtJgo3mpDJkynB3w/9KGLrcMk7Cq3Hmu1MWTd8mGbUnHi0lgzwyPp0KLO9
-5DQMrTFnLgMxNb2fZwIDAQAB
-`,
+			PublicKey:  `MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEApkd2RXy++Z4T3v6l41ne
+			5AyXSIZW6zuim7j5d24m8BbW/Xc1OM8H6RoohlC5K0Eg/R9CTFycdR90p+ARbzK4
+			1Wp6KvRzlDw/EeJr9M54aNPaQKB/IGUm7PdPXqZY8yLZ4ywEtSGSYgxTE/7+mFyh
+			s3rKkO0r9cq/Rp2qgjliuXjI6OcMeExh380/qp28NJmNcgEpEcHYa7aafUr6WS8i
+			zLztHlhvqVF+mSveiln/WWMxK5uGhgxQ3BtOsq0cwnhIy49MM5nwU1K9KNnqFA/m
+			pffWIKJFwwQCfP8ZtsXxANAlOFenxtuAoWQ3QYo7CJNA9jjYadNOXYr4VPl53xIU
+			2QIDAQAB`,
 		},
 		{
 			StudentID:   "B6400009",
 			StudentName: "s9",
-			PublicKey:  `MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDxOdR9GtkPlAQP0DqcQCmJuIb6
-lDROc4a1D5BQsmrqJEV1qc5WRFH7J4jSNV5+zEnoVvuUWK+WIy8Z1q9caNpeEYCT
-aPOxKRr4mauoVkPnqbBOZTs9mumCG9MyzzbY185japHBhQK02EvdRXOSPgE8vcJl
-n0X1UnKr9L446kx8vQIDAQAB
-`,
+			PublicKey:  `MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAt4bmJs7qPtPN6IJ0tAx6
+			dr7kJxnDNmmRIs9yvtrQe1fZT/y1esVq9aPiW1c7bGZPExtpF0qyDE9P9iPb2nDv
+			g2Ifdp93Vgjuo7GX21h3itnssHvyczPnNzSn+DS5iwYrMXwe03zuQHTMEKiHS25g
+			hGUgbNReUtqXDjimmrj8wdhfDBtJiDcj4teocS6+2+HCTOzkmHg9CzY4Kr3nCYNZ
+			bbj4uHo94xndUS/AvgaVZa3kYC1o/kOZSozD0eKtVdc3YgEs13IXv3kHO3473+CI
+			eO2CHcqsILoHQqxT7iyHTlChk8nIQ/3aLV7nxFRiUJL6gZFUQ3ue04mJJbiNjvdB
+			jwIDAQAB`,
 		},
 		{
 			StudentID:   "B6400010",
 			StudentName: "s10",
-			PublicKey:  `MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCHP95VxYmLggJlh2oWpCii6MMg
-NC9pajZ73aszTf7srmFJvF8tx4l/FFripT/Rq08GLzhPObx5Ojzyy+i1DK2IgVHZ
-58lOmfqT3x9lKEP0/AsAhlRvdttdf2d3GqIu6powYr5FtxWTxTKTnR/HGGJUapoz
-fq7KRjqYR3vWz2x41QIDAQAB
-`,
+			PublicKey:  `MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAlAj3T/GiHFUqPSHokemc
+			93VhFSC4brF2rDB29lTkVKPyoaRqIT+bx1uqgv/NqlFFcm7eVvQ9xYq+DhigbZ85
+			RkJS4UKdq0aRPalzuSAiLi+N9E/y99TKy8ZWfWrbac0Ly2oGX6q2omg09fHA9tna
+			7r2SeTnMqiaDCtefxMQe3FsdtFKMPET70lfdOrKoZMRSMeBq6jVTN9kQqw+aYPt2
+			8oMbfrWUkBMrY8tyQJMYGX65DS7PkMBCT9YZu9q5Wmvt6LXyY80tivN9H7s2xHbP
+			JmAUWNY5nXyGAKsZLWe0HCOUXM7+UKI75kLLFgx9uSCiCn34WKbmozrryvu+XflN
+			TQIDAQAB`,
 		},
 	}
 
-	for _, voter := range voter {
-		db.Create(&voter)
+	for _, Voter := range Voter {
+		db.Create(&Voter)
 	}
-	return database, nil
 }

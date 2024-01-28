@@ -35,19 +35,19 @@ func CreateVoting(c *gin.Context) {
 		return
 	}
 
-	db, err := entity.ConnectDB()
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
+	// db, err := entity.ConnectDB()
+	// if err != nil {
+	// 	c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	// 	return
+	// }
 
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
+	// if err != nil {
+	// 	c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	// 	return
+	// }
 
 	// ค้นหา candidat ด้วย id
-	db.First(&candidat, data.CandidatID)
+	entity.DB().First(&candidat, data.CandidatID)
 	if candidat.ID == 0 {
 		c.JSON(http.StatusNotFound, gin.H{"error": "candidat not found"})
 		return
@@ -102,8 +102,8 @@ func CreateVoting(c *gin.Context) {
 	fmt.Println("Signature verified successfully!")
 
 	var votings []entity.Voting
-	var hashVotesData = ""
-	db.Preload("Vote").Preload("Candidat").Find(&votings)
+	var hashVotesData = data.StudenID + candidat.NameCandidat + data.Signeture
+	entity.DB().Preload("Vote").Preload("Candidat").Find(&votings)
 	if len(votings) == 0 {
 		hashVotesData = data.StudenID + candidat.NameCandidat + data.Signeture
 	} else {
@@ -128,7 +128,7 @@ func CreateVoting(c *gin.Context) {
 	}
 
 	// บันทึก
-	if err := db.Create(&u).Error; err != nil {
+	if err := entity.DB().Create(&u).Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
@@ -138,15 +138,15 @@ func CreateVoting(c *gin.Context) {
 
 // GET /voting/:id
 func GetVoting(c *gin.Context) {
-	db, err := entity.ConnectDB()
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
+	//db, err := entity.DB()
+	// if err != nil {
+	// 	c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	// 	return
+	// }
 
 	var voting entity.Voting
 	id := c.Param("id")
-	db.Preload("Vote").Preload("Candidat").First(&voting, id)
+	entity.DB().Preload("Vote").Preload("Candidat").First(&voting, id)
 	if voting.ID == 0 {
 		c.JSON(http.StatusNotFound, gin.H{"error": "voting not found"})
 		return
@@ -157,32 +157,32 @@ func GetVoting(c *gin.Context) {
 // GET /Voting
 func ListVotings(c *gin.Context) {
 
-	db, err := entity.ConnectDB()
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
+	// db, err := entity.ConnectDB()
+	// if err != nil {
+	// 	c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	// 	return
+	// }
 
 	var votings []entity.Voting
-	db.Preload("Vote").Preload("Candidat").Find(&votings)
+	entity.DB().Preload("Vote").Preload("Candidat").Find(&votings)
 	c.JSON(http.StatusOK, votings)
 }
 
 // DELETE /votings/:id
 func DeleteUser(c *gin.Context) {
 
-	db, err := entity.ConnectDB()
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
+	// db, err := entity.ConnectDB()
+	// if err != nil {
+	// 	c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	// 	return
+	// }
 
 	id := c.Param("id")
 
 	var voting entity.Voting
-	db.First(&voting, id)
+	entity.DB().First(&voting, id)
 	if voting.ID != 0 {
-		db.Delete(&voting)
+		entity.DB().Delete(&voting)
 		c.JSON(http.StatusOK, gin.H{"message": "Deleted success"})
 	} else {
 		c.JSON(http.StatusNotFound, gin.H{"error": "id not found"})
@@ -195,29 +195,29 @@ func UpdateVoting(c *gin.Context) {
 	var voting entity.Voting
 	var result entity.Voting
 
-	db, err := entity.ConnectDB()
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
+	// db, err := entity.ConnectDB()
+	// if err != nil {
+	// 	c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	// 	return
+	// }
 
 	if err := c.ShouldBindJSON(&voting); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
+	// if err != nil {
+	// 	c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	// 	return
+	// }
 
 	// ค้นหา user ด้วย id
-	if tx := db.Where("id = ?", voting.ID).First(&result); tx.RowsAffected == 0 {
+	if tx := entity.DB().Where("id = ?", voting.ID).First(&result); tx.RowsAffected == 0 {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "user not found"})
 		return
 	}
 
-	if err := db.Save(&voting).Error; err != nil {
+	if err := entity.DB().Save(&voting).Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
