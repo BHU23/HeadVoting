@@ -10,8 +10,7 @@ export interface VotingsInterface {
     StudenID?:string;
     CandidatID: number;
     Candidat?: CandidatsInterface;
-    HashAuthen?: string;
 
-    PrivateKey?: string;
+    PrivateKey: string;
 }
   

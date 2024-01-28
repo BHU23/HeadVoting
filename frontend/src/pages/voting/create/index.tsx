@@ -30,11 +30,14 @@ export default function CreateVoting() {
     const data = String(values.StudenID) + String(candidat[0].NameCandidat);
     const privateKey = `
 -----BEGIN RSA PRIVATE KEY-----
-${values.PrivateKey}
+${values.PrivateKey.trim()}
 -----END RSA PRIVATE KEY-----`;
-
     const privateKeyPem = forge.pki.privateKeyFromPem(privateKey);
 
+    if (privateKeyPem) {
+    } else {
+      toast.error("บันทึกข้อมูลไม่สำเร็จ " + "PRIVATE KEY invalid format");
+    }
     // Create a SHA-512 hash of the data
     const md = forge.md.sha512.create();
     md.update(data, "utf8");
@@ -52,11 +55,11 @@ ${values.PrivateKey}
       toast.success("บันทึกข้อมูลสำเร็จ");
 
       setTimeout(function () {
-        if (dataVoting.length == 10) {
+        if (dataVoting.length === 10) {
           navigate(`/VotingResults`);
         }
       }, 2000);
-      
+
       form.setFieldsValue({
         StudenID: undefined,
         CandidatID: undefined,

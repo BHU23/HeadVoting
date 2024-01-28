@@ -74,30 +74,37 @@ export default function VotingResults() {
       title: "ลำดับ",
       dataIndex: "ID",
       key: "ID",
-      width: "20%",
+      width: "5%",
       align: "center",
     },
     {
       title: "รหัสนักศึกษา",
       dataIndex: "StudenID",
       key: "StudenID",
-      width: "40%",
+      width: "20%",
       align: "center",
     },
     {
       title: "ผู้สมัครเลือกตั้ง",
       dataIndex: "Candidat",
       key: "Candidat",
-      width: "40%",
+      width: "20%",
       align: "center",
       render: (item) => Object.values(item.NameCandidat),
+    },
+    {
+      title: "Hash vlue",
+      dataIndex: "HashVote",
+      key: "HashVote",
+      width: "55%",
+      align: "center",
     },
   ];
 
 
   const getCandidateName = (id: number) => {
     const CandidateName: CandidatsInterface | undefined = dataCandidateName.find((unit: CandidatsInterface) => unit.ID === id);
-    return CandidateName ? CandidateName.NameCandidat : 'Unknown';
+    return CandidateName ? CandidateName.NameCandidat : '';
   };
   const [dataCandidateName, setDataCandidateName] = useState<CandidatsInterface[]>([]);
 
