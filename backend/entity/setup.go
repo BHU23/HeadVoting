@@ -11,7 +11,7 @@ func DB() *gorm.DB {
 	return db
 }
 
-func ConnectDB() (*gorm.DB, error) {
+func ConnectDB() () {
 	var err error
 	var database *gorm.DB
 	database, err = gorm.Open(sqlite.Open("cs-66.db"), &gorm.Config{})
@@ -147,5 +147,4 @@ func ConnectDB() (*gorm.DB, error) {
 	for _, Voter := range Voter {
 		db.Create(&Voter)
 	}
-	return database, nil
 }
