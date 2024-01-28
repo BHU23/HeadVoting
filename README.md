@@ -4,11 +4,11 @@ B6419455 ภูวดล ศรีธร
 
 B6419615 นายนฤเบศน์ จิตรช่วย
 
-#การใช้งาน
+# การใช้งาน
 
 git clone 
 
-#1.install router react
+# 1.install router react
 
 cd frontend
 
@@ -37,7 +37,7 @@ go get -u gorm.io/gorm
 
 go get -u gorm.io/driver/sqlite
 
-#Runing
+# Runing
 
 run backend 
 
