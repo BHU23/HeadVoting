@@ -60,17 +60,12 @@ func CreateVoting(c *gin.Context) {
 		return
 	}
 
-	hashData := data.StudenID + string(candidat.NameCandidat)
+	Datahash := data.StudenID + string(candidat.NameCandidat)
+
 	// Hash the concatenated data using SHA-512
-	hashDigestByte := sha512.Sum512([]byte(hashData))
-	hashDigest := fmt.Sprintf("%x", hashDigestByte)
-	fmt.Println("hashDigest:", hashDigest)
+	hashDigestByte := sha512.Sum512([]byte(Datahash))
 
 	inPutSignature := data.Signeture
-	signatureInput := []byte(inPutSignature)
-	fmt.Println("signatureInput:", signatureInput)
-	fmt.Println("signatureInput:", inPutSignature)
-	fmt.Println("voter.PublishKey:", voter.PublicKey)
 
 	// Insert line breaks and headers into the public key
 	formattedPublicKey := fmt.Sprintf("-----BEGIN PUBLIC KEY-----\n%s\n-----END PUBLIC KEY-----", voter.PublicKey)
@@ -107,19 +102,20 @@ func CreateVoting(c *gin.Context) {
 	fmt.Println("Signature verified successfully!")
 
 	var votings []entity.Voting
-	var hashVotesData = data.StudenID + candidat.NameCandidat + data.Signeture
+	var hashVotesData = ""
 	db.Preload("Vote").Preload("Candidat").Find(&votings)
 	if len(votings) == 0 {
-		hashVotesData = hashVotesData
+		hashVotesData = data.StudenID + candidat.NameCandidat + data.Signeture
 	} else {
 		for i := 0; i < len(votings); i++ {
 			hashVotesData += votings[i].StudenID + string(votings[i].Candidat.NameCandidat) + string(votings[i].Signeture)
 		}
 	}
-
+	hashVotesData = hashVotesData + data.StudenID + candidat.NameCandidat + data.Signeture
 	// Hash the concatenated data using SHA-256
 	hashedVotesData := sha512.Sum512([]byte(hashVotesData))
 	HashVotes := fmt.Sprintf("%x", hashedVotesData)
+
 	// สร้าง Voting
 	u := entity.Voting{
 		StudenID:   data.StudenID,

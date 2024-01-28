@@ -1,5 +1,4 @@
-import { JSEncrypt } from "jsencrypt";
-
+import * as forge from "node-forge";
 async function generateKeysForVoters() {
   const voters = [
     {
@@ -67,16 +66,20 @@ async function generateKeysForVoters() {
   const updatedVoters = [];
 
   for (const voter of voters) {
-    const encrypt = new JSEncrypt();
+    // Generate an RSA key pair with a key size of 2048 bits
+    const keyPair = forge.pki.rsa.generateKeyPair({ bits: 2048 });
 
-    // Generate key pair
-    const privateKey = encrypt.getPrivateKey();
-    const publicKey = encrypt.getPublicKey();
+    // Convert private key to PEM format
+    const privateKeyPem = forge.pki.privateKeyToPem(keyPair.privateKey);
 
-    voter.PrivateKey = privateKey;
-    voter.PublishKey = publicKey;
+    // Convert public key to PEM format
+    const publicKeyPem = forge.pki.publicKeyToPem(keyPair.publicKey);
+
+    voter.PrivateKey = privateKeyPem;
+    voter.PublishKey = publicKeyPem;
     updatedVoters.push(voter);
   }
 
+  console.log("updatedVoters");
   console.log(updatedVoters);
 }
