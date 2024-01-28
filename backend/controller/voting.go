@@ -62,18 +62,18 @@ func CreateVoting(c *gin.Context) {
 
 	hashData := data.StudenID + string(candidat.NameCandidat)
 	// Hash the concatenated data using SHA-512
-	hasheddaSrecret := sha512.Sum512([]byte(hashData))
-	hashDigest := fmt.Sprintf("%x", hasheddaSrecret)
+	hashDigestByte := sha512.Sum512([]byte(hashData))
+	hashDigest := fmt.Sprintf("%x", hashDigestByte)
 	fmt.Println("hashDigest:", hashDigest)
 
 	inPutSignature := data.Signeture
 	signatureInput := []byte(inPutSignature)
 	fmt.Println("signatureInput:", signatureInput)
 	fmt.Println("signatureInput:", inPutSignature)
-	fmt.Println("voter.PublishKey:", voter.PublishKey)
+	fmt.Println("voter.PublishKey:", voter.PublicKey)
 
 	// Insert line breaks and headers into the public key
-	formattedPublicKey := fmt.Sprintf("-----BEGIN PUBLIC KEY-----\n%s\n-----END PUBLIC KEY-----", voter.PublishKey)
+	formattedPublicKey := fmt.Sprintf("-----BEGIN PUBLIC KEY-----\n%s\n-----END PUBLIC KEY-----", voter.PublicKey)
 
 	publicKey := []byte(formattedPublicKey)
 	block, _ := pem.Decode(publicKey)
@@ -98,7 +98,7 @@ func CreateVoting(c *gin.Context) {
 		return
 	}
 
-	err = rsa.VerifyPKCS1v15(pub, crypto.SHA512, hasheddaSrecret[:], signatureBytes)
+	err = rsa.VerifyPKCS1v15(pub, crypto.SHA512, hashDigestByte[:], signatureBytes)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Signature verification failed:"})
 		return
@@ -107,13 +107,13 @@ func CreateVoting(c *gin.Context) {
 	fmt.Println("Signature verified successfully!")
 
 	var votings []entity.Voting
-	var hashVotesData = ""
+	var hashVotesData = data.StudenID + candidat.NameCandidat + data.Signeture
 	db.Preload("Vote").Preload("Candidat").Find(&votings)
 	if len(votings) == 0 {
-		hashVotesData = data.StudenID + candidat.NameCandidat
+		hashVotesData = hashVotesData
 	} else {
 		for i := 0; i < len(votings); i++ {
-			hashVotesData += votings[i].StudenID + string(votings[i].Candidat.NameCandidat)
+			hashVotesData += votings[i].StudenID + string(votings[i].Candidat.NameCandidat) + string(votings[i].Signeture)
 		}
 	}
 

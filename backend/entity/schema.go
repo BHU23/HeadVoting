@@ -8,7 +8,7 @@ type Voter struct {
 	gorm.Model
 	StudentID   string `gorm:"uniqueIndex"`
 	StudentName string
-	PublishKey  string
+	PublicKey  string
 
 	Votings []Voting `gorm:"foreignKey:VoterID"`
 }

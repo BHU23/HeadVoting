@@ -42,8 +42,8 @@ ${values.PrivateKey}
     const md = forge.md.sha512.create();
     md.update(data, "utf8");
     const hash = md.digest().getBytes();
-    const hashH = md.digest().toHex();
-    console.log("Hash:", hashH);
+    const hashDigest = md.digest().toHex();
+    console.log("Hash:", hashDigest);
 
     // Sign the hash with RSA PKCS#1 v1.5 padding
     const signature = privateKeyPem.sign(md);
@@ -59,7 +59,7 @@ ${values.PrivateKey}
       toast.success("บันทึกข้อมูลสำเร็จ");
 
       setTimeout(function () {
-        if (dataVoting.length === 10) {
+        if (dataVoting.length == 10) {
           navigate(`/VotingResults`);
         }
       }, 2000);
@@ -80,87 +80,6 @@ ${values.PrivateKey}
       setCandidats(res);
     }
   };
-  async function generateKeysForVoters() {
-    const voters = [
-      {
-        StudentID: "B6400001",
-        StudentName: "s1",
-        PublishKey: "",
-        PrivateKey: "",
-      },
-      {
-        StudentID: "B6400002",
-        StudentName: "s2",
-        PublishKey: "",
-        PrivateKey: "",
-      },
-      {
-        StudentID: "B6400003",
-        StudentName: "s3",
-        PublishKey: "",
-        PrivateKey: "",
-      },
-      {
-        StudentID: "B6400004",
-        StudentName: "s4",
-        PublishKey: "",
-        PrivateKey: "",
-      },
-      {
-        StudentID: "B6400005",
-        StudentName: "s5",
-        PublishKey: "",
-        PrivateKey: "",
-      },
-      {
-        StudentID: "B6400006",
-        StudentName: "s6",
-        PublishKey: "",
-        PrivateKey: "",
-      },
-      {
-        StudentID: "B6400007",
-        StudentName: "s7",
-        PublishKey: "",
-        PrivateKey: "",
-      },
-      {
-        StudentID: "B6400008",
-        StudentName: "s8",
-        PublishKey: "",
-        PrivateKey: "",
-      },
-      {
-        StudentID: "B6400009",
-        StudentName: "s9",
-        PublishKey: "",
-        PrivateKey: "",
-      },
-      {
-        StudentID: "B6400010",
-        StudentName: "s10",
-        PublishKey: "",
-        PrivateKey: "",
-      },
-    ];
-
-    const updatedVoters = [];
-
-    for (const voter of voters) {
-      const encrypt = new JSEncrypt();
-
-      // Generate key pair
-      const privateKey = encrypt.getPrivateKey();
-      const publicKey = encrypt.getPublicKey();
-
-      voter.PrivateKey = privateKey;
-      voter.PublishKey = publicKey;
-      updatedVoters.push(voter);
-    }
-
-    console.log("updatedVoters");
-    console.log(updatedVoters);
-  }
 
   const getVoters = async () => {
     let res = await GetVoters();
@@ -179,7 +98,6 @@ ${values.PrivateKey}
     getCandidats();
     getVoters();
     getVoting();
-    // generateKeysForVoters();
   }, []);
 
   //#########################################################
@@ -439,10 +357,13 @@ ${values.PrivateKey}
           </Form.Item>
           <Form.Item
             name="PrivateKey"
-            label="PrivateKey"
+            label="Private Key for create Signature"
             rules={[{ required: true, message: "กรุณากรอก PrivateKey !" }]}
           >
-            <TextArea style={{ width: '100%', resize: 'none'}} autoSize={{maxRows:4, minRows:4}} />
+            <TextArea
+              style={{ width: "100%", resize: "none" }}
+              autoSize={{ maxRows: 4, minRows: 4 }}
+            />
           </Form.Item>
           <Button
             type="primary"
@@ -507,23 +428,22 @@ ${values.PrivateKey}
         </div>
 
         <div>
-          <Button 
+          <Button
             style={{
-              background:'#21A6A6', 
-              color:'#ffff', 
-              fontWeight:'500',
-              fontSize:'14px',
-              padding:'10px 20px',
-              textAlign:'center',
-              justifyContent:'center',
-              height:'auto',
-              alignItems:'center',
-              width:'100%'
-              }}
-              type="link"
-              className="VotingResultsButton"
-              onClick={handleButtonClick}
-
+              background: "#21A6A6",
+              color: "#ffff",
+              fontWeight: "500",
+              fontSize: "14px",
+              padding: "10px 20px",
+              textAlign: "center",
+              justifyContent: "center",
+              height: "auto",
+              alignItems: "center",
+              width: "100%",
+            }}
+            type="link"
+            className="VotingResultsButton"
+            onClick={handleButtonClick}
           >
             ผลการเลือกตั้ง
           </Button>
@@ -533,10 +453,9 @@ ${values.PrivateKey}
             description="Please check that everyone has voted?"
             visible={showPopconfirm}
             onCancel={handlePopconfirmCancel}
-            okButtonProps={{ style: { display: 'none' } }}
-            cancelButtonProps={{ style: { display: '' } }}
-          >
-          </Popconfirm>
+            okButtonProps={{ style: { display: "none" } }}
+            cancelButtonProps={{ style: { display: "" } }}
+          ></Popconfirm>
         </div>
       </Card>
     </div>
