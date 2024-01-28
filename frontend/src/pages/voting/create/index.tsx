@@ -147,20 +147,27 @@ ${values.PrivateKey}
     const updatedVoters = [];
 
     for (const voter of voters) {
-      const encrypt = new JSEncrypt();
-
-      // Generate key pair
-      const privateKey = encrypt.getPrivateKey();
-      const publicKey = encrypt.getPublicKey();
-
-      voter.PrivateKey = privateKey;
-      voter.PublishKey = publicKey;
+      // Generate an RSA key pair with a key size of 2048 bits
+      const keyPair = forge.pki.rsa.generateKeyPair({ bits: 2048 });
+  
+      // Convert private key to PEM format
+      const privateKeyPem = forge.pki.privateKeyToPem(keyPair.privateKey);
+  
+      // Convert public key to PEM format
+      const publicKeyPem = forge.pki.publicKeyToPem(keyPair.publicKey);
+  
+      voter.PrivateKey = privateKeyPem;
+      voter.PublishKey = publicKeyPem;
       updatedVoters.push(voter);
     }
 
     console.log("updatedVoters");
     console.log(updatedVoters);
+
   }
+
+
+
 
   const getVoters = async () => {
     let res = await GetVoters();
@@ -457,6 +464,8 @@ ${values.PrivateKey}
           </Button>
         </Form>
       </Card>
+      
+      {/* <button onClick={async () => await generateKeysForVoters()}>Generate Keys</button> */}
 
       <Card style={{ flex: "1", wordWrap: "break-word" }}>
         <div
