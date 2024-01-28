@@ -28,7 +28,6 @@ export default function CreateVoting() {
   const onFinish = async (values: VotingsInterface) => {
     const candidat = candidats.filter((c) => c.ID === values.CandidatID);
     const data = String(values.StudenID) + String(candidat[0].NameCandidat);
-    console.log(data);
     const privateKey = `
 -----BEGIN RSA PRIVATE KEY-----
 ${values.PrivateKey}
@@ -41,15 +40,11 @@ ${values.PrivateKey}
     md.update(data, "utf8");
     const hash = md.digest().getBytes();
     const hashDigest = md.digest().toHex();
-    console.log("Hash:", hashDigest);
 
     // Sign the hash with RSA PKCS#1 v1.5 padding
     const signature = privateKeyPem.sign(md);
 
-    console.log("Signature:", forge.util.encode64(signature));
-
     // Now you can use the 'signature' variable as needed
-    console.log("Signature:", signature);
     values.Signeture = signature ? forge.util.encode64(signature) : "";
 
     let res = await CreateVotings(values);
