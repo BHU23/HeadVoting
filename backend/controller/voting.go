@@ -35,17 +35,6 @@ func CreateVoting(c *gin.Context) {
 		return
 	}
 
-	// db, err := entity.ConnectDB()
-	// if err != nil {
-	// 	c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-	// 	return
-	// }
-
-	// if err != nil {
-	// 	c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-	// 	return
-	// }
-
 	// ค้นหา candidat ด้วย id
 	entity.DB().First(&candidat, data.CandidatID)
 	if candidat.ID == 0 {
@@ -138,15 +127,12 @@ func CreateVoting(c *gin.Context) {
 
 // GET /voting/:id
 func GetVoting(c *gin.Context) {
-	//db, err := entity.DB()
-	// if err != nil {
-	// 	c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-	// 	return
-	// }
-
 	var voting entity.Voting
 	id := c.Param("id")
-	entity.DB().Preload("Vote").Preload("Candidat").First(&voting, id)
+	if err := entity.DB().Preload("Vote").Preload("Candidat").First(&voting, id).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 	if voting.ID == 0 {
 		c.JSON(http.StatusNotFound, gin.H{"error": "voting not found"})
 		return
@@ -156,72 +142,12 @@ func GetVoting(c *gin.Context) {
 
 // GET /Voting
 func ListVotings(c *gin.Context) {
-
-	// db, err := entity.ConnectDB()
-	// if err != nil {
-	// 	c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-	// 	return
-	// }
-
 	var votings []entity.Voting
-	entity.DB().Preload("Vote").Preload("Candidat").Find(&votings)
+	if err := entity.DB().Preload("Vote").Preload("Candidat").Find(&votings).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 	c.JSON(http.StatusOK, votings)
-}
-
-// DELETE /votings/:id
-func DeleteUser(c *gin.Context) {
-
-	// db, err := entity.ConnectDB()
-	// if err != nil {
-	// 	c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-	// 	return
-	// }
-
-	id := c.Param("id")
-
-	var voting entity.Voting
-	entity.DB().First(&voting, id)
-	if voting.ID != 0 {
-		entity.DB().Delete(&voting)
-		c.JSON(http.StatusOK, gin.H{"message": "Deleted success"})
-	} else {
-		c.JSON(http.StatusNotFound, gin.H{"error": "id not found"})
-	}
-
-}
-
-// PATCH /votings
-func UpdateVoting(c *gin.Context) {
-	var voting entity.Voting
-	var result entity.Voting
-
-	// db, err := entity.ConnectDB()
-	// if err != nil {
-	// 	c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-	// 	return
-	// }
-
-	if err := c.ShouldBindJSON(&voting); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	// if err != nil {
-	// 	c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-	// 	return
-	// }
-
-	// ค้นหา user ด้วย id
-	if tx := entity.DB().Where("id = ?", voting.ID).First(&result); tx.RowsAffected == 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "user not found"})
-		return
-	}
-
-	if err := entity.DB().Save(&voting).Error; err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"data": voting})
 }
 
 // GET /users

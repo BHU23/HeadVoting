@@ -14,8 +14,6 @@ func main() {
 	r.GET("/voting", controller.ListCandidat)
 	r.GET("/voting/:id", controller.GetVoting)
 	r.POST("/votings", controller.CreateVoting)
-	r.PATCH("/voting", controller.UpdateVoting)
-	r.DELETE("/voting/:id", controller.DeleteUser)
 
 	// Candidats
 	r.GET("/candidats", controller.ListCandidat)
